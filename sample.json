@@ -1,0 +1,60 @@
+{
+  "name": "The Local Project",
+  "description": "some text I wrote locally on my machine",
+  "createdAt": 1684947374,
+  "tables": [
+    {
+      "id": 1,
+      "key": "Sample Table",
+      "events": [
+        {
+          "id": 1,
+          "key": "MyEvent"
+        },
+        {
+          "id": 2,
+          "key": "MySecondEvent"
+        }
+      ],
+      "facts": [
+        {
+          "id": 3,
+          "key": "MyFact",
+          "data": 21
+        },
+        {
+          "id": 4,
+          "key": "MySecondFact",
+          "data": 33
+        }
+      ],
+      "rules": [
+        {
+          "id": 5,
+          "key": "MyRule",
+          "triggeredBy": [ 1 ],
+          "triggers": [ 2 ],
+          "criteria": [
+            {
+              "comparedEntry": 3,
+              "compareValue": 9999,
+              "comparisonOperator": "equal"
+            },
+            {
+              "comparedEntry": 4,
+              "compareValue": 42,
+              "comparisonOperator": "lessThanOrEqual"
+            }
+          ],
+          "modifications": [
+            {
+              "entry": 3,
+              "modificationOperator": "set",
+              "value": 42
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

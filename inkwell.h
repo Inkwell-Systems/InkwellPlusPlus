@@ -9,15 +9,15 @@
 
 namespace inkwell
 {
-	enum critOp
+	enum comparisonOp
 	{
-		EQUALS,
-		NOT_EQUALS,
+		EQUAL,
+		NOT_EQUAL,
 		GREATER_THAN,
 		LESS_THAN,
-		GREATER_THAN_OR_EQUAL_TO,
-		LESS_THAN_OR_EQUAL_TO,
-		NULL_CRITOP
+		GREATER_THAN_OR_EQUAL,
+		LESS_THAN_OR_EQUAL,
+		NULL_COMPARISONOP
 	};
 
 	enum modOp
@@ -34,7 +34,23 @@ namespace inkwell
 		NAME,
 		DESCRIPTION,
 		CREATEDAT,
-		TABLES
+		TABLES,
+		ID,
+		KEY,
+		EVENTS,
+		FACTS,
+		RULES,
+		DATA,
+		TRIGGERED_BY,
+		TRIGGERS,
+		CRITERIA,
+		MODIFICATIONS,
+		COMPARED_ENTRY,
+		COMPARE_VALUE,
+		COMPARISON_OPERATOR,
+		MODIFIED_ENTRY,
+		MOD_OPERATOR,
+		VALUE
 	};
 
 	class Entry
@@ -54,7 +70,7 @@ namespace inkwell
 	class Fact : public Entry
 	{
 	public:
-		int value = 0;
+		int data = 0;
 	};
 
 	class Criterion
@@ -62,7 +78,7 @@ namespace inkwell
 	public:
 		int comparedEntry = 0;
 		int compareValue = 0;
-		critOp critOperator = NULL_CRITOP;
+		comparisonOp comparisonOperator = NULL_COMPARISONOP;
 	};
 
 	class Modification
@@ -94,6 +110,7 @@ namespace inkwell
 		std::unordered_map<int, Event> events;
 		std::unordered_map<int, Fact> facts;
 		std::unordered_map<int, Rule> rules;
+		void displayOnConsole();
 		void setEvents(std::vector<Event> events, modOp operation);
 		void setFacts(std::vector<Fact> facts, modOp operation);
 		void setRules(std::vector<Rule> rules, modOp operation);
@@ -106,28 +123,30 @@ namespace inkwell
 		std::string name = "";
 		std::string description = "";
 		int createdAtNano = 0;
-		std::vector<Table> tables;
+		std::unordered_map<int, Table> tables;
 	};
 
 	class JSONParser
 	{
 	private:
-
 		std::ifstream fileInput;
+		char read = 0;
 
 	public:
 		JSONParser(const std::string filename);
 		Project parseProject();
-		std::vector<Table> parseTables();
-		std::vector<Event> parseEvents();
-		std::vector<Fact> parseFacts();
-		std::vector<Rule> parseRules();
+		std::unordered_map<int, Table> parseTables();
+		std::unordered_map<int, Event> parseEvents();
+		std::unordered_map<int, Fact> parseFacts();
+		std::unordered_map<int, Rule> parseRules();
 		std::vector<Criterion> parseCriteria();
 		std::vector<Modification> parseModifications();
+		std::vector<int> parseIntArray();
 
-		Keys getNextKey(); // not all keys are introduced yet
+		Keys getNextKey();
 		std::string getNextString(); // doesnt support escape sequences
-		int getNextInteger(); // do not forget values can be negative aswell
-		//float getNextFloat();
+		int getNextInteger();
+		comparisonOp getNextComparisonOp();
+		modOp getNextModOp();
 	};
 }
