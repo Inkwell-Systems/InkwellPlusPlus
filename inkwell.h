@@ -1,11 +1,14 @@
 #pragma once
 
+// TODO fix inconsistencies in naming
+
 // add ifndef lol
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <iostream>
 #include <fstream>
+#include <typeinfo>
 
 namespace inkwell
 {
@@ -126,15 +129,11 @@ namespace inkwell
 		std::unordered_map<int, Table> tables;
 	};
 
-	class JSONParser
+	class Deserializer
 	{
 	private:
 		std::ifstream fileInput;
 		char read = 0;
-
-	public:
-		JSONParser(const std::string filename);
-		Project parseProject();
 		std::unordered_map<int, Table> parseTables();
 		std::unordered_map<int, Event> parseEvents();
 		std::unordered_map<int, Fact> parseFacts();
@@ -142,11 +141,40 @@ namespace inkwell
 		std::vector<Criterion> parseCriteria();
 		std::vector<Modification> parseModifications();
 		std::vector<int> parseIntArray();
-
 		Keys getNextKey();
+		Keys stringToKey(std::string s);
 		std::string getNextString(); // doesnt support escape sequences
 		int getNextInteger();
 		comparisonOp getNextComparisonOp();
 		modOp getNextModOp();
+
+	public:
+		Deserializer(const std::string filePath);
+		~Deserializer();
+		Project parseProject();
 	};
+	//doesnt support multiple projects in one file yet
+	//add backtracking through file to avoid some issues with formatting
+
+	class Serializer
+	{
+	private:
+		std::ofstream fileOutput;
+		int globalNestingLevel = 0;
+		void format();
+		void startObject();
+		void endObject(bool isLast);
+		void writeTables(std::unordered_map<int, Table> tables);
+		void writeEvents(std::unordered_map<int, Event> events);
+		void writeFacts(std::unordered_map<int, Fact> facts);
+		void writeRules(std::unordered_map<int, Rule> rules);
+		void writeCriteria(std::vector<Criterion> criteria);
+		void writeModifications(std::vector<Modification> modifications);
+		void writeIntArray(std::vector<int> arr);
+	public:
+		Serializer(const std::string filePath);
+		~Serializer();
+		void writeProject(Project project);
+	};
+	// also output times triggered
 }

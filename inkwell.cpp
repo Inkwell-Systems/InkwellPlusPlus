@@ -2,6 +2,8 @@
 
 using namespace inkwell;
 
+// GETTERS AND SETTERS
+
 void Rule::setTriggeredBy(std::vector<int> triggeredBy, modOp operation)
 {
 	if (operation == SET)
@@ -78,12 +80,19 @@ void Table::setRules(std::vector<Rule> rules, modOp operation)
 		std::cout << "error at Table::setRules\n";
 }
 
-JSONParser::JSONParser(const std::string filename)
+// DESERIALIZER
+
+Deserializer::Deserializer(const std::string filePath)
 {
-	this->fileInput.open(filename);
+	this->fileInput.open(filePath);
 }
 
-std::string JSONParser::getNextString()
+Deserializer::~Deserializer()
+{
+	this->fileInput.close();
+}
+
+std::string Deserializer::getNextString()
 {
 	this->read = 0;
 	std::string str = "";
@@ -102,7 +111,7 @@ std::string JSONParser::getNextString()
 	return str;
 }
 
-int JSONParser::getNextInteger()
+int Deserializer::getNextInteger()
 {
 	int integer = 0;
 	bool isNegative = 0;
@@ -136,7 +145,7 @@ int JSONParser::getNextInteger()
 	return integer;
 }
 
-comparisonOp JSONParser::getNextComparisonOp()
+comparisonOp Deserializer::getNextComparisonOp()
 {
 	std::string op = this->getNextString();
 
@@ -156,7 +165,7 @@ comparisonOp JSONParser::getNextComparisonOp()
 	return NULL_COMPARISONOP;
 }
 
-modOp JSONParser::getNextModOp()
+modOp Deserializer::getNextModOp()
 {
 	std::string op = this->getNextString();
 
@@ -170,18 +179,8 @@ modOp JSONParser::getNextModOp()
 	return NULL_MODOP;
 }
 
-Keys JSONParser::getNextKey()
+Keys Deserializer::stringToKey(std::string key)
 {
-	this->read = 0;
-
-	this->fileInput.get(this->read); // skip 1st quotation mark
-	std::string key = "";
-	while (this->read != '"') // this->read until 2nd quotation mark
-	{
-		key += this->read;
-		this->fileInput.get(this->read);
-	}
-
 	if (key == "name")
 		return NAME;
 	else if (key == "description")
@@ -220,13 +219,28 @@ Keys JSONParser::getNextKey()
 		return MODIFIED_ENTRY;
 	else if (key == "modificationOperator")
 		return MOD_OPERATOR;
-	else if(key == "value")
+	else if (key == "value")
 		return VALUE;
 
 	return NULL_KEYS;
 }
 
-std::vector<int> JSONParser::parseIntArray()
+Keys Deserializer::getNextKey()
+{
+	this->read = 0;
+
+	this->fileInput.get(this->read); // skip 1st quotation mark
+	std::string key = "";
+	while (this->read != '"') // this->read until 2nd quotation mark
+	{
+		key += this->read;
+		this->fileInput.get(this->read);
+	}
+
+	return this->stringToKey(key);
+}
+
+std::vector<int> Deserializer::parseIntArray()
 {
 	this->read = 0;
 	std::vector<int> arr;
@@ -245,7 +259,7 @@ std::vector<int> JSONParser::parseIntArray()
 	return arr;
 }
 
-std::vector<Criterion> JSONParser::parseCriteria()
+std::vector<Criterion> Deserializer::parseCriteria()
 {
 	this->read = 0;
 	std::vector<Criterion> criteria;
@@ -298,7 +312,7 @@ std::vector<Criterion> JSONParser::parseCriteria()
 	return criteria;
 }
 
-std::vector<Modification> JSONParser::parseModifications()
+std::vector<Modification> Deserializer::parseModifications()
 {
 	this->read = 0;
 	std::vector<Modification> modifications;
@@ -351,7 +365,7 @@ std::vector<Modification> JSONParser::parseModifications()
 	return modifications;
 }
 
-std::unordered_map<int, Event> JSONParser::parseEvents()
+std::unordered_map<int, Event> Deserializer::parseEvents()
 {
 	this->read = 0;
 	std::unordered_map<int, Event> events;
@@ -403,7 +417,7 @@ std::unordered_map<int, Event> JSONParser::parseEvents()
 	return events;
 }
 
-std::unordered_map<int, Fact> JSONParser::parseFacts()
+std::unordered_map<int, Fact> Deserializer::parseFacts()
 {
 	this->read = 0;
 	std::unordered_map<int, Fact> facts;
@@ -460,7 +474,7 @@ std::unordered_map<int, Fact> JSONParser::parseFacts()
 	return facts;
 }
 
-std::unordered_map<int, Rule> JSONParser::parseRules()
+std::unordered_map<int, Rule> Deserializer::parseRules()
 {
 	this->read = 0;
 	std::unordered_map<int, Rule> rules;
@@ -532,7 +546,7 @@ std::unordered_map<int, Rule> JSONParser::parseRules()
 	return rules;
 }
 
-std::unordered_map<int, Table> JSONParser::parseTables()
+std::unordered_map<int, Table> Deserializer::parseTables()
 {
 	this->read = 0;
 	std::unordered_map<int, Table> tables;
@@ -548,24 +562,24 @@ std::unordered_map<int, Table> JSONParser::parseTables()
 	{
 		this->fileInput.get(this->read);
 
-		if (this->read == '{' or this->read == '[') // start of a table's component or an array within
+		if (this->read == '{' or this->read == '[')
 		{
 			++nestingIndex;
 			continue;
 		}
-		else if (this->read == '}' or this->read == ']') // end of a table's component or an array within
+		else if (this->read == '}' or this->read == ']')
 		{
 			--nestingIndex;
 			continue;
 		}
-		else if (this->read != '"') // not a key
+		else if (this->read != '"')
 			continue;
 
 		Keys keyToken = this->getNextKey();
 
 		switch (keyToken)
 		{
-		case ID: // start of a new table
+		case ID:
 		{
 			currentTableID = this->getNextInteger();
 			tables.insert({ currentTableID, Table() });
@@ -597,9 +611,9 @@ std::unordered_map<int, Table> JSONParser::parseTables()
 	}
 
 	return tables;
-} // placeholder function
+}
 
-Project JSONParser::parseProject()
+Project Deserializer::parseProject()
 {
 	
 	Project project;
@@ -630,7 +644,7 @@ Project JSONParser::parseProject()
 		}
 		case TABLES: 
 		{
-			project.tables = this->parseTables(); 
+			project.tables = this->parseTables();
 			break;
 		}
 		default: std::cout << "Key seems to be invalid!\n";
@@ -638,4 +652,203 @@ Project JSONParser::parseProject()
 	}
 
 	return project;
+}
+
+// SERIALIZER
+
+Serializer::Serializer(std::string filePath)
+{
+	this->fileOutput.open(filePath, std::ios::out);
+}
+
+Serializer::~Serializer()
+{
+	this->fileOutput.close();
+}
+
+void Serializer::format()
+{
+	for (int i = 1; i <= globalNestingLevel; ++i)
+		this->fileOutput << "\t";
+}
+
+void Serializer::startObject()
+{
+	++this->globalNestingLevel;
+	this->format(); this->fileOutput << "{\n";
+	++this->globalNestingLevel;
+}
+
+void Serializer::endObject(bool isLast)
+{
+	if (isLast)
+	{
+		--this->globalNestingLevel;
+		this->format(); this->fileOutput << "}\n";
+		--this->globalNestingLevel;
+	}
+	else
+	{
+		--this->globalNestingLevel;
+		this->format(); this->fileOutput << "},\n";
+		--this->globalNestingLevel;
+	}
+}
+
+void Serializer::writeIntArray(std::vector<int> arr)
+{
+	int intCount = (int)arr.size(), intIndex = 0;
+
+	for (auto i : arr)
+	{
+		++intIndex;
+
+		if(intIndex == intCount)
+			this->fileOutput << " " << i;
+		else
+			this->fileOutput << " " << i << ",";
+	}
+}
+
+void Serializer::writeCriteria(std::vector<Criterion> criteria)
+{
+	int objCount = (int)criteria.size(), objIndex = 0;
+
+	for (auto i : criteria)
+	{
+		++objIndex;
+		this->startObject();
+		
+		this->format(); this->fileOutput << "\"comparedEntry\": " << i.comparedEntry << ",\n";
+		this->format(); this->fileOutput << "\"compareValue\": " << i.compareValue << ",\n";
+		this->format(); this->fileOutput << "\"comparisonOperator\": " << i.comparisonOperator << "\n";
+
+		this->endObject(objIndex == objCount);
+	}
+}
+
+void Serializer::writeModifications(std::vector<Modification> modifications)
+{
+	int objCount = (int)modifications.size(), objIndex = 0;
+
+	for (auto i : modifications)
+	{
+		++objIndex;
+		this->startObject();
+
+		this->format(); this->fileOutput << "\"entry\": " << i.modifiedEntry << ",\n";
+		this->format(); this->fileOutput << "\"modificationOperator\": " << i.modOperator << ",\n";
+		this->format(); this->fileOutput << "\"value\": " << i.value << "\n";
+
+		this->endObject(objIndex == objCount);
+	}
+}
+
+void Serializer::writeEvents(std::unordered_map<int, Event> events)
+{
+	int objCount = (int)events.size(), objIndex = 0;
+
+	for (auto event : events)
+	{
+		++objIndex;
+		this->startObject();
+
+		this->format(); this->fileOutput << "\"id\": " << event.second.id << ",\n";
+		this->format(); this->fileOutput << "\"key\": \"" << event.second.key << "\"\n";
+
+		this->endObject(objIndex == objCount);
+	}
+}
+
+void Serializer::writeFacts(std::unordered_map<int, Fact> facts)
+{
+	int objCount = (int)facts.size(), objIndex = 0;
+
+	for (auto fact : facts)
+	{
+		++objIndex;
+		this->startObject();
+
+		this->format(); this->fileOutput << "\"id\": " << fact.second.id << ",\n";
+		this->format(); this->fileOutput << "\"key\": \"" << fact.second.key << "\",\n";
+		this->format(); this->fileOutput << "\"data\": " << fact.second.data << "\n";
+
+		this->endObject(objIndex == objCount);
+	}
+}
+
+void Serializer::writeRules(std::unordered_map<int, Rule> rules)
+{
+	int objCount = (int)rules.size(), objIndex = 0;
+
+	for (auto rule : rules)
+	{
+		++objIndex;
+		this->startObject();
+		
+		this->format(); this->fileOutput << "\"id\": " << rule.second.id << ",\n";
+		this->format(); this->fileOutput << "\"key\": \"" << rule.second.key << "\",\n";
+
+		this->format(); this->fileOutput << "\"triggeredBy\": [";
+		writeIntArray(rule.second.triggeredBy);
+		this->fileOutput << "],\n";
+
+		this->format(); this->fileOutput << "\"triggers\": [";
+		writeIntArray(rule.second.triggers);
+		this->fileOutput << "],\n";
+
+		this->format(); this->fileOutput << "\"criteria\": [\n";
+		this->writeCriteria(rule.second.criteria);
+		this->format(); this->fileOutput << "],\n";
+
+		this->format(); this->fileOutput << "\"modifications\": [\n";
+		this->writeModifications(rule.second.modifications);
+		this->format(); this->fileOutput << "]\n";
+
+		this->endObject(objIndex == objCount);
+	}
+}
+
+void Serializer::writeTables(std::unordered_map<int, Table> tables)
+{
+	int objCount = (int)tables.size(), objIndex = 0;
+
+	for (auto table : tables)
+	{
+		++objIndex;
+		this->startObject();
+
+		this->format(); this->fileOutput << "\"id\": " << table.second.id << ",\n";
+		this->format(); this->fileOutput << "\"key\": \"" << table.second.key << "\",\n";
+
+		this->format(); this->fileOutput << "\"events\": [\n";
+		this->writeEvents(table.second.events);
+		this->format(); this->fileOutput << "],\n";
+
+		this->format(); this->fileOutput << "\"facts\": [\n";
+		this->writeFacts(table.second.facts);
+		this->format(); this->fileOutput << "],\n";
+
+		this->format(); this->fileOutput << "\"rules\": [\n";
+		this->writeRules(table.second.rules);
+		this->format(); this->fileOutput << "]\n";
+
+		this->endObject(objIndex == objCount);
+	}
+}
+
+void Serializer::writeProject(Project project)
+{
+	this->fileOutput << "{\n";
+	++this->globalNestingLevel;
+
+	this->format(); this->fileOutput << "\"name\": \"" << project.name << "\",\n";
+	this->format(); this->fileOutput << "\"description\": \"" << project.description << "\",\n";
+	this->format(); this->fileOutput << "\"createdAt\": " << project.createdAtNano << ",\n";
+
+	this->format(); this->fileOutput << "\"tables\": [\n";
+	this->writeTables(project.tables);
+	this->format(); this->fileOutput << "]\n";
+
+	this->fileOutput << "}\n";
 }

@@ -29,5 +29,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="sample.json" />
+    <None Include="newfile.json">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
