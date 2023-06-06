@@ -4,80 +4,254 @@ using namespace inkwell;
 
 // GETTERS AND SETTERS
 
-void Rule::setTriggeredBy(std::vector<int> triggeredBy, modOp operation)
+void Rule::setTriggeredBy(std::vector<int> triggeredBy, ArrayOperator operation)
 {
-	if (operation == SET)
+	if (operation == ArrayOperator::SET)
 		this->triggeredBy = triggeredBy;
-	else if (operation == ADD)
+	else if (operation == ArrayOperator::ADD)
 		this->triggeredBy.insert(this->triggeredBy.end(), triggeredBy.begin(), triggeredBy.end());
 	else
 		std::cout << "error at Rule::setTriggeredBy\n";
 }
 
-void Rule::setTriggers(std::vector<int> triggers, modOp operation)
+void Rule::setTriggers(std::vector<int> triggers, ArrayOperator operation)
 {
-	if (operation == SET)
+	if (operation == ArrayOperator::SET)
 		this->triggers = triggers;
-	else if (operation == ADD)
+	else if (operation == ArrayOperator::ADD)
 		this->triggers.insert(this->triggers.end(), triggers.begin(), triggers.end());
 	else
 		std::cout << "error at Rule::setTriggers\n";
 }
 
-void Rule::setCriteria(std::vector<Criterion> criteria, modOp operation)
+void Rule::setCriteria(std::vector<Criterion> criteria, ArrayOperator operation)
 {
-	if (operation == SET)
+	if (operation == ArrayOperator::SET)
 		this->criteria = criteria;
-	else if (operation == ADD)
+	else if (operation == ArrayOperator::ADD)
 		this->criteria.insert(this->criteria.end(), criteria.begin(), criteria.end());
 	else
 		std::cout << "error at Rule::setCriteria\n";
 }
 
-void Rule::setModifications(std::vector<Modification> modifications, modOp operation)
+void Rule::setModifications(std::vector<Modification> modifications, ArrayOperator operation)
 {
-	if (operation == SET)
+	if (operation == ArrayOperator::SET)
 		this->modifications = modifications;
-	else if (operation == ADD)
+	else if (operation == ArrayOperator::ADD)
 		this->modifications.insert(this->modifications.end(), modifications.begin(), modifications.end());
 	else
 		std::cout << "error at Rule::setModifications\n";
 }
 
-void Table::setEvents(std::vector<Event> events, modOp operation)
+void Table::setEvents(std::vector<Event> events, ArrayOperator operation)
 {
-	if (operation == SET)
+	if (operation == ArrayOperator::SET)
 		this->events.clear();
 
 	for (Event i : events)
 		this->events.insert({ i.id, i });
 
-	if (operation != SET and operation != ADD)
+	if (operation != ArrayOperator::SET and operation != ArrayOperator::ADD)
 		std::cout << "error at Table::setEvents\n";
 }
 
-void Table::setFacts(std::vector<Fact> facts, modOp operation)
+void Table::setFacts(std::vector<Fact> facts, ArrayOperator operation)
 {
-	if (operation == SET)
+	if (operation == ArrayOperator::SET)
 		this->facts.clear();
 
 	for (Fact i : facts)
 		this->facts.insert({ i.id, i });
 
-	if (operation != SET and operation != ADD)
+	if (operation != ArrayOperator::SET and operation != ArrayOperator::ADD)
 		std::cout << "error at Table::setFacts\n";
 }
 
-void Table::setRules(std::vector<Rule> rules, modOp operation)
+void Table::setRules(std::vector<Rule> rules, ArrayOperator operation)
 {
-	if (operation == SET)
+	if (operation == ArrayOperator::SET)
 		this->rules.clear();
 
 	for (Rule i : rules)
 		this->rules.insert({ i.id, i });
 
-	if (operation != SET and operation != ADD)
+	if (operation != ArrayOperator::SET and operation != ArrayOperator::ADD)
 		std::cout << "error at Table::setRules\n";
+}
+
+// ENUM CONVERTER CLASS
+
+Keys enumConverter::toKey(std::string key)
+{
+	if (key == "projectName")
+		return Keys::PROJECT_NAME;
+	else if (key == "projectDescription")
+		return Keys::PROJECT_DESCRIPTION;
+	else if (key == "projectCreatedAt")
+		return Keys::PROJECT_CREATEDAT;
+	else if (key == "id")
+		return Keys::ID;
+	else if (key == "key")
+		return Keys::KEY;
+	else if (key == "timesTriggered")
+		return Keys::TIMES_TRIGGERED;
+	else if (key == "tables")
+		return Keys::TABLES;
+	else if (key == "events")
+		return Keys::EVENTS;
+	else if (key == "facts")
+		return Keys::FACTS;
+	else if (key == "rules")
+		return Keys::RULES;
+	else if (key == "factData")
+		return Keys::FACT_DATA;
+	else if (key == "ruleTriggeredBy")
+		return Keys::RULE_TRIGGERED_BY;
+	else if (key == "ruleTriggers")
+		return Keys::RULE_TRIGGERS;
+	else if (key == "ruleCriteria")
+		return Keys::RULE_CRITERIA;
+	else if (key == "ruleModifications")
+		return Keys::RULE_MODIFICATIONS;
+	else if (key == "comparedEntry")
+		return Keys::COMPARED_ENTRY;
+	else if (key == "compareValue")
+		return Keys::COMPARE_VALUE;
+	else if (key == "comparisonOperator")
+		return Keys::COMPARISON_OPERATOR;
+	else if (key == "modifiedEntry")
+		return Keys::MODIFIED_ENTRY;
+	else if (key == "modificationOperator")
+		return Keys::MODIFICATION_OPERATOR;
+	else if (key == "modifyWithValue")
+		return Keys::MODIFY_WITH_VALUE;
+
+	return Keys::NULL_KEY;
+}
+
+ComparisonOperator enumConverter::toComparisonOperator(std::string key)
+{
+	if(key == "equal")
+		return ComparisonOperator::EQUAL;
+	else if(key == "notEqual")
+		return ComparisonOperator::NOT_EQUAL;
+	else if(key == "greaterThan")
+		return ComparisonOperator::GREATER_THAN;
+	else if(key == "lessThan")
+		return ComparisonOperator::LESS_THAN;
+	else if(key == "greaterThanOrEqual")
+		return ComparisonOperator::GREATER_THAN_OR_EQUAL;
+	else if(key == "lessThanOrEqual")
+		return ComparisonOperator::LESS_THAN_OR_EQUAL;
+
+	return ComparisonOperator::NULL_OPERATOR;
+}
+
+ModificationOperator enumConverter::toModificationOperator(std::string key)
+{
+	if(key == "set")
+		return ModificationOperator::SET;
+	else if(key == "increment")
+		return ModificationOperator::INCREMENT;
+
+	return ModificationOperator::NULL_OPERATOR;
+}
+
+ArrayOperator enumConverter::toArrayOperator(std::string key)
+{
+	if(key == "set")
+		return ArrayOperator::SET;
+	else if(key == "add")
+		return ArrayOperator::ADD;
+
+	return ArrayOperator::NULL_OPERATOR;
+}
+
+std::string enumConverter::toString(Keys k)
+{
+	if(k == Keys::PROJECT_NAME)
+		return "projectName";
+	else if(k == Keys::PROJECT_DESCRIPTION)
+		return "projectDescription";
+	else if(k == Keys::PROJECT_CREATEDAT)
+		return "projectCreatedAt";
+	else if(k == Keys::ID)
+		return "id";
+	else if(k == Keys::KEY)
+		return "key";
+	else if(k == Keys::TIMES_TRIGGERED)
+		return "timesTriggered";
+	else if(k == Keys::TABLES)
+		return "tables";
+	else if(k == Keys::EVENTS)
+		return "events";
+	else if(k == Keys::FACTS)
+		return "facts";
+	else if(k == Keys::RULES)
+		return "rules";
+	else if(k == Keys::FACT_DATA)
+		return "factData";
+	else if(k == Keys::RULE_TRIGGERED_BY)
+		return "ruleTriggeredBy";
+	else if(k == Keys::RULE_TRIGGERS)
+		return "ruleTriggers";
+	else if(k == Keys::RULE_CRITERIA)
+		return "ruleCriteria";
+	else if(k == Keys::RULE_MODIFICATIONS)
+		return "ruleModifications";
+	else if(k == Keys::COMPARED_ENTRY)
+		return "comparedEntry";
+	else if(k == Keys::COMPARE_VALUE)
+		return "compareValue";
+	else if(k == Keys::COMPARISON_OPERATOR)
+		return "comparisonOperator";
+	else if(k == Keys::MODIFIED_ENTRY)
+		return "modifiedEntry";
+	else if(k == Keys::MODIFICATION_OPERATOR)
+		return "modificationOperator";
+	else if(k == Keys::MODIFY_WITH_VALUE)
+		return "modifyWithValue";
+
+	return "nullKey";
+}
+
+std::string enumConverter::toString(ComparisonOperator c)
+{
+	if(c == ComparisonOperator::EQUAL)
+		return "equal";
+	else if(c == ComparisonOperator::NOT_EQUAL)
+		return "notEqual";
+	else if(c == ComparisonOperator::GREATER_THAN)
+		return "greaterThan";
+	else if(c == ComparisonOperator::LESS_THAN)
+		return "lessThan";
+	else if(c == ComparisonOperator::GREATER_THAN_OR_EQUAL)
+		return "greaterThanOrEqual";
+	else if(c == ComparisonOperator::LESS_THAN_OR_EQUAL)
+		return "lessThanOrEqual";
+
+	return "nullOperator";
+}
+
+std::string enumConverter::toString(ModificationOperator m)
+{
+	if(m == ModificationOperator::SET)
+		return "set";
+	else if(m == ModificationOperator::INCREMENT)
+		return "increment";
+
+	return "nullOperator";
+}
+
+std::string enumConverter::toString(ArrayOperator a)
+{
+	if(a == ArrayOperator::SET)
+		return "set";
+	else if(a == ArrayOperator::ADD)
+		return "add";
+
+	return "nullOperator";
 }
 
 // DESERIALIZER
@@ -145,86 +319,36 @@ int Deserializer::getNextInteger()
 	return integer;
 }
 
-comparisonOp Deserializer::getNextComparisonOp()
+ComparisonOperator Deserializer::getNextComparisonOperator()
 {
 	std::string op = this->getNextString();
 
 	if(op == "equal")
-		return EQUAL;
+		return ComparisonOperator::EQUAL;
 	else if(op == "notEqual")
-		return NOT_EQUAL;
+		return ComparisonOperator::NOT_EQUAL;
 	else if(op == "lessThan")
-		return LESS_THAN;
+		return ComparisonOperator::LESS_THAN;
 	else if(op == "lessThanOrEqual")
-		return LESS_THAN_OR_EQUAL;
+		return ComparisonOperator::LESS_THAN_OR_EQUAL;
 	else if(op == "greaterThan")
-		return GREATER_THAN;
+		return ComparisonOperator::GREATER_THAN;
 	else if(op == "greaterThanOrEqual")
-		return GREATER_THAN_OR_EQUAL;
+		return ComparisonOperator::GREATER_THAN_OR_EQUAL;
 	
-	return NULL_COMPARISONOP;
+	return ComparisonOperator::NULL_OPERATOR;
 }
 
-modOp Deserializer::getNextModOp()
+ModificationOperator Deserializer::getNextModificationOperator()
 {
 	std::string op = this->getNextString();
 
 	if (op == "SET")
-		return SET;
-	else if (op == "ADD")
-		return ADD;
+		return ModificationOperator::SET;
 	else if (op == "INCREMENT")
-		return INCREMENT;
+		return ModificationOperator::INCREMENT;
 
-	return NULL_MODOP;
-}
-
-Keys Deserializer::stringToKey(std::string key)
-{
-	if (key == "name")
-		return NAME;
-	else if (key == "description")
-		return DESCRIPTION;
-	else if (key == "createdAt")
-		return CREATEDAT;
-	else if (key == "id")
-		return ID;
-	else if (key == "key")
-		return KEY;
-	else if (key == "timesTriggered")
-		return TIMES_TRIGGERED;
-	else if (key == "tables")
-		return TABLES;
-	else if (key == "events")
-		return EVENTS;
-	else if (key == "facts")
-		return FACTS;
-	else if (key == "rules")
-		return RULES;
-	else if (key == "data")
-		return DATA;
-	else if (key == "triggeredBy")
-		return TRIGGERED_BY;
-	else if (key == "triggers")
-		return TRIGGERS;
-	else if (key == "criteria")
-		return CRITERIA;
-	else if (key == "modifications")
-		return MODIFICATIONS;
-	else if (key == "comparedEntry")
-		return COMPARED_ENTRY;
-	else if (key == "compareValue")
-		return COMPARE_VALUE;
-	else if (key == "comparisonOperator")
-		return COMPARISON_OPERATOR;
-	else if (key == "entry")
-		return MODIFIED_ENTRY;
-	else if (key == "modificationOperator")
-		return MOD_OPERATOR;
-	else if (key == "value")
-		return VALUE;
-
-	return NULL_KEYS;
+	return ModificationOperator::NULL_OPERATOR;
 }
 
 Keys Deserializer::getNextKey()
@@ -239,7 +363,7 @@ Keys Deserializer::getNextKey()
 		this->fileInput.get(this->read);
 	}
 
-	return this->stringToKey(key);
+	return enumConverter::toKey(key);
 }
 
 std::vector<int> Deserializer::parseIntArray()
@@ -291,23 +415,23 @@ std::vector<Criterion> Deserializer::parseCriteria()
 
 		switch (keyToken)
 		{
-		case COMPARED_ENTRY:
+		case Keys::COMPARED_ENTRY:
 		{
 			criteria.push_back(Criterion());
 			criteria.back().comparedEntry = this->getNextInteger();
 			break;
 		}
-		case COMPARE_VALUE:
+		case Keys::COMPARE_VALUE:
 		{
 			criteria.back().compareValue = this->getNextInteger();
 			break;
 		}
-		case COMPARISON_OPERATOR:
+		case Keys::COMPARISON_OPERATOR:
 		{
-			criteria.back().comparisonOperator = this->getNextComparisonOp();
+			criteria.back().comparisonOperator = this->getNextComparisonOperator();
 			break;
 		}
-		default: std::cout << "Key seems to be invalid!\n";
+		default: std::cout << "Invalid key in criteria!\n";
 		}
 	}
 
@@ -344,23 +468,23 @@ std::vector<Modification> Deserializer::parseModifications()
 
 		switch (keyToken)
 		{
-		case MODIFIED_ENTRY:
+		case Keys::MODIFIED_ENTRY:
 		{
 			modifications.push_back(Modification());
 			modifications.back().modifiedEntry = this->getNextInteger();
 			break;
 		}
-		case MOD_OPERATOR:
+		case Keys::MODIFICATION_OPERATOR:
 		{
-			modifications.back().modOperator = this->getNextModOp();
+			modifications.back().modificationOperator = this->getNextModificationOperator();
 			break;
 		}
-		case VALUE:
+		case Keys::MODIFY_WITH_VALUE:
 		{
 			modifications.back().value = this->getNextInteger();
 			break;
 		}
-		default: std::cout << "Key seems to be invalid!\n";
+		default: std::cout << "Invalid key at modifications!\n";
 		}
 	}
 
@@ -400,19 +524,24 @@ std::unordered_map<int, Event> Deserializer::parseEvents()
 
 		switch (keyToken)
 		{
-		case ID: // start of new event
+		case Keys::ID:
 		{
 			currentEventID = this->getNextInteger();
 			events.insert({ currentEventID, Event() });
 			events[currentEventID].id = currentEventID;
 			break;
 		}
-		case KEY:
+		case Keys::KEY:
 		{
 			events[currentEventID].key = this->getNextString();
 			break;
 		}
-		default: std::cout << "Key seems to be invalid!\n";
+		case Keys::TIMES_TRIGGERED:
+		{
+			events[currentEventID].timesTriggered = this->getNextInteger();
+			break;
+		}
+		default: std::cout << "Invalid key at event!\n";
 		}
 	}
 
@@ -452,24 +581,29 @@ std::unordered_map<int, Fact> Deserializer::parseFacts()
 
 		switch (keyToken)
 		{
-		case ID: // start of new fact
+		case Keys::ID: // start of new fact
 		{
 			currentFactID = this->getNextInteger();
 			facts.insert({ currentFactID, Fact() });
 			facts[currentFactID].id = currentFactID;
 			break;
 		}
-		case KEY:
+		case Keys::KEY:
 		{
 			facts[currentFactID].key = this->getNextString();
 			break;
 		}
-		case DATA:
+		case Keys::FACT_DATA:
 		{
 			facts[currentFactID].data = this->getNextInteger();
 			break;
 		}
-		default: std::cout << "Key seems to be invalid!\n";
+		case Keys::TIMES_TRIGGERED:
+		{
+			facts[currentFactID].timesTriggered = this->getNextInteger();
+			break;
+		}
+		default: std::cout << "Invalid key at facts!\n";
 		}
 	}
 
@@ -509,39 +643,44 @@ std::unordered_map<int, Rule> Deserializer::parseRules()
 
 		switch (keyToken)
 		{
-		case ID: // start of new rule
+		case Keys::ID: // start of new rule
 		{
 			currentRuleID = this->getNextInteger();
 			rules.insert({ currentRuleID, Rule() });
 			rules[currentRuleID].id = currentRuleID;
 			break;
 		}
-		case KEY:
+		case Keys::KEY:
 		{
 			rules[currentRuleID].key = this->getNextString();
 			break;
 		}
-		case TRIGGERED_BY:
+		case Keys::RULE_TRIGGERED_BY:
 		{
 			rules[currentRuleID].triggeredBy = this->parseIntArray();
 			break;
 		}
-		case TRIGGERS:
+		case Keys::RULE_TRIGGERS:
 		{
 			rules[currentRuleID].triggers = this->parseIntArray();
 			break;
 		}
-		case CRITERIA: 
+		case Keys::RULE_CRITERIA: 
 		{
 			rules[currentRuleID].criteria = this->parseCriteria();
 			break;
 		}
-		case MODIFICATIONS:
+		case Keys::RULE_MODIFICATIONS:
 		{
 			rules[currentRuleID].modifications = this->parseModifications();
 			break;
 		}
-		default: std::cout << "Key seems to be invalid!\n";
+		case Keys::TIMES_TRIGGERED:
+		{
+			rules[currentRuleID].timesTriggered = this->getNextInteger();
+			break;
+		}
+		default: std::cout << "Invalid key at rule!\n";
 		}
 	}
 
@@ -581,34 +720,34 @@ std::unordered_map<int, Table> Deserializer::parseTables()
 
 		switch (keyToken)
 		{
-		case ID:
+		case Keys::ID:
 		{
 			currentTableID = this->getNextInteger();
 			tables.insert({ currentTableID, Table() });
 			tables[currentTableID].id = currentTableID;
 			break;
 		}
-		case KEY:
+		case Keys::KEY:
 		{
 			tables[currentTableID].key = this->getNextString();
 			break;
 		}
-		case EVENTS:
+		case Keys::EVENTS:
 		{
 			tables[currentTableID].events = this->parseEvents();
 			break;
 		}
-		case FACTS:
+		case Keys::FACTS:
 		{
 			tables[currentTableID].facts = this->parseFacts();
 			break;
 		}
-		case RULES:
+		case Keys::RULES:
 		{
 			tables[currentTableID].rules = this->parseRules();
 			break;
 		}
-		default: std::cout << "Key seems to be invalid!\n";
+		default: std::cout << "Invalid key at table!\n";
 		}
 	}
 
@@ -629,22 +768,22 @@ Project Deserializer::parseProject()
 
 		switch (keyToken)
 		{
-		case NAME:
+		case Keys::PROJECT_NAME:
 		{
 			project.name = this->getNextString(); 
 			break;
 		}
-		case DESCRIPTION:
+		case Keys::PROJECT_DESCRIPTION:
 		{
 			project.description = this->getNextString(); 
 			break;
 		}
-		case CREATEDAT:
+		case Keys::PROJECT_CREATEDAT:
 		{
 			project.createdAtNano = this->getNextInteger(); 
 			break;
 		}
-		case TABLES: 
+		case Keys::TABLES: 
 		{
 			project.tables = this->parseTables();
 			break;
@@ -723,7 +862,7 @@ void Serializer::writeCriteria(std::vector<Criterion> criteria)
 		
 		this->format(); this->fileOutput << "\"comparedEntry\": " << i.comparedEntry << ",\n";
 		this->format(); this->fileOutput << "\"compareValue\": " << i.compareValue << ",\n";
-		this->format(); this->fileOutput << "\"comparisonOperator\": " << i.comparisonOperator << "\n";
+		this->format(); this->fileOutput << "\"comparisonOperator\": \"" << enumConverter::toString(i.comparisonOperator) << "\"\n";
 
 		this->endObject(objIndex == objCount);
 	}
@@ -738,9 +877,9 @@ void Serializer::writeModifications(std::vector<Modification> modifications)
 		++objIndex;
 		this->startObject();
 
-		this->format(); this->fileOutput << "\"entry\": " << i.modifiedEntry << ",\n";
-		this->format(); this->fileOutput << "\"modificationOperator\": " << i.modOperator << ",\n";
-		this->format(); this->fileOutput << "\"value\": " << i.value << "\n";
+		this->format(); this->fileOutput << "\"modifiedEntry\": " << i.modifiedEntry << ",\n";
+		this->format(); this->fileOutput << "\"modificationOperator\": \"" << enumConverter::toString(i.modificationOperator) << "\",\n";
+		this->format(); this->fileOutput << "\"modifyWithValue\": " << i.value << "\n";
 
 		this->endObject(objIndex == objCount);
 	}
@@ -774,7 +913,7 @@ void Serializer::writeFacts(std::unordered_map<int, Fact> facts)
 
 		this->format(); this->fileOutput << "\"id\": " << fact.second.id << ",\n";
 		this->format(); this->fileOutput << "\"key\": \"" << fact.second.key << "\",\n";
-		this->format(); this->fileOutput << "\"data\": " << fact.second.data << ",\n";
+		this->format(); this->fileOutput << "\"factData\": " << fact.second.data << ",\n";
 		this->format(); this->fileOutput << "\"timesTriggered\": " << fact.second.timesTriggered << "\n";
 
 		this->endObject(objIndex == objCount);
@@ -793,19 +932,19 @@ void Serializer::writeRules(std::unordered_map<int, Rule> rules)
 		this->format(); this->fileOutput << "\"id\": " << rule.second.id << ",\n";
 		this->format(); this->fileOutput << "\"key\": \"" << rule.second.key << "\",\n";
 
-		this->format(); this->fileOutput << "\"triggeredBy\": [";
+		this->format(); this->fileOutput << "\"ruleTriggeredBy\": [";
 		writeIntArray(rule.second.triggeredBy);
 		this->fileOutput << "],\n";
 
-		this->format(); this->fileOutput << "\"triggers\": [";
+		this->format(); this->fileOutput << "\"ruleTriggers\": [";
 		writeIntArray(rule.second.triggers);
 		this->fileOutput << "],\n";
 
-		this->format(); this->fileOutput << "\"criteria\": [\n";
+		this->format(); this->fileOutput << "\"ruleCriteria\": [\n";
 		this->writeCriteria(rule.second.criteria);
 		this->format(); this->fileOutput << "],\n";
 
-		this->format(); this->fileOutput << "\"modifications\": [\n";
+		this->format(); this->fileOutput << "\"ruleModifications\": [\n";
 		this->writeModifications(rule.second.modifications);
 		this->format(); this->fileOutput << "],\n";
 
@@ -848,9 +987,9 @@ void Serializer::writeProject(Project project)
 	this->fileOutput << "{\n";
 	++this->globalNestingLevel;
 
-	this->format(); this->fileOutput << "\"name\": \"" << project.name << "\",\n";
-	this->format(); this->fileOutput << "\"description\": \"" << project.description << "\",\n";
-	this->format(); this->fileOutput << "\"createdAt\": " << project.createdAtNano << ",\n";
+	this->format(); this->fileOutput << "\"projectName\": \"" << project.name << "\",\n";
+	this->format(); this->fileOutput << "\"projectDescription\": \"" << project.description << "\",\n";
+	this->format(); this->fileOutput << "\"projectCreatedAt\": " << project.createdAtNano << ",\n";
 
 	this->format(); this->fileOutput << "\"tables\": [\n";
 	this->writeTables(project.tables);

@@ -26,7 +26,6 @@
     <ClInclude Include="inkwell.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="newfile.json" />
     <None Include="sample.json" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

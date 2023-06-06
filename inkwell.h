@@ -1,42 +1,45 @@
 #pragma once
 
-// TODO fix inconsistencies in naming
-
-// add ifndef lol
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <iostream>
 #include <fstream>
-#include <typeinfo>
 
 namespace inkwell
 {
-	enum comparisonOp
+	enum class ComparisonOperator
 	{
+		NULL_OPERATOR,
 		EQUAL,
 		NOT_EQUAL,
 		GREATER_THAN,
 		LESS_THAN,
 		GREATER_THAN_OR_EQUAL,
-		LESS_THAN_OR_EQUAL,
-		NULL_COMPARISONOP
+		LESS_THAN_OR_EQUAL
 	};
 
-	enum modOp
+	enum class ModificationOperator
 	{
+		NULL_OPERATOR,
 		SET,
-		ADD,
-		INCREMENT,
-		NULL_MODOP
+		INCREMENT
+	};
+	// Fix this
+
+	enum class ArrayOperator
+	{
+		NULL_OPERATOR,
+		SET,
+		ADD
 	};
 
-	enum Keys
+	enum class Keys
 	{
-		NULL_KEYS,
-		NAME,
-		DESCRIPTION,
-		CREATEDAT,
+		NULL_KEY,
+		PROJECT_NAME,
+		PROJECT_DESCRIPTION,
+		PROJECT_CREATEDAT,
 		TABLES,
 		ID,
 		KEY,
@@ -44,17 +47,30 @@ namespace inkwell
 		EVENTS,
 		FACTS,
 		RULES,
-		DATA,
-		TRIGGERED_BY,
-		TRIGGERS,
-		CRITERIA,
-		MODIFICATIONS,
+		FACT_DATA,
+		RULE_TRIGGERED_BY,
+		RULE_TRIGGERS,
+		RULE_CRITERIA,
+		RULE_MODIFICATIONS,
 		COMPARED_ENTRY,
 		COMPARE_VALUE,
 		COMPARISON_OPERATOR,
 		MODIFIED_ENTRY,
-		MOD_OPERATOR,
-		VALUE
+		MODIFICATION_OPERATOR,
+		MODIFY_WITH_VALUE
+	};
+
+	class enumConverter
+	{
+	public:
+		static Keys toKey(std::string key);
+		static ComparisonOperator toComparisonOperator(std::string key);
+		static ModificationOperator toModificationOperator(std::string key);
+		static ArrayOperator toArrayOperator(std::string key);
+		static std::string toString(Keys k);
+		static std::string toString(ComparisonOperator c);
+		static std::string toString(ModificationOperator m);
+		static std::string toString(ArrayOperator a);
 	};
 
 	class Entry
@@ -63,7 +79,6 @@ namespace inkwell
 		int id = 0;
 		std::string key = "";
 		int timesTriggered = 0;
-		void displayOnConsole();
 	};
 
 	class Event : public Entry
@@ -82,14 +97,14 @@ namespace inkwell
 	public:
 		int comparedEntry = 0;
 		int compareValue = 0;
-		comparisonOp comparisonOperator = NULL_COMPARISONOP;
+		ComparisonOperator comparisonOperator = ComparisonOperator::NULL_OPERATOR;
 	};
 
 	class Modification
 	{
 	public:
 		int modifiedEntry = 0;
-		modOp modOperator = NULL_MODOP;
+		ModificationOperator modificationOperator = ModificationOperator::NULL_OPERATOR;
 		int value = 0;
 	};
 
@@ -100,10 +115,10 @@ namespace inkwell
 		std::vector<int> triggers;
 		std::vector<Criterion> criteria;
 		std::vector<Modification> modifications;
-		void setTriggeredBy(std::vector<int> triggeredBy, modOp operation);
-		void setTriggers(std::vector<int> triggers, modOp operation);
-		void setCriteria(std::vector<Criterion> criteria, modOp operation);
-		void setModifications(std::vector<Modification> modifications, modOp operation);
+		void setTriggeredBy(std::vector<int> triggeredBy, ArrayOperator operation);
+		void setTriggers(std::vector<int> triggers, ArrayOperator operation);
+		void setCriteria(std::vector<Criterion> criteria, ArrayOperator operation);
+		void setModifications(std::vector<Modification> modifications, ArrayOperator operation);
 	};
 
 	class Table
@@ -115,9 +130,9 @@ namespace inkwell
 		std::unordered_map<int, Fact> facts;
 		std::unordered_map<int, Rule> rules;
 		void displayOnConsole();
-		void setEvents(std::vector<Event> events, modOp operation);
-		void setFacts(std::vector<Fact> facts, modOp operation);
-		void setRules(std::vector<Rule> rules, modOp operation);
+		void setEvents(std::vector<Event> events, ArrayOperator operation);
+		void setFacts(std::vector<Fact> facts, ArrayOperator operation);
+		void setRules(std::vector<Rule> rules, ArrayOperator operation);
 		void mergeWithTables(std::vector<Table> tables);
 	};
 
@@ -143,11 +158,10 @@ namespace inkwell
 		std::vector<Modification> parseModifications();
 		std::vector<int> parseIntArray();
 		Keys getNextKey();
-		Keys stringToKey(std::string s);
-		std::string getNextString(); // doesnt support escape sequences
+		std::string getNextString();
 		int getNextInteger();
-		comparisonOp getNextComparisonOp();
-		modOp getNextModOp();
+		ComparisonOperator getNextComparisonOperator();
+		ModificationOperator getNextModificationOperator();
 
 	public:
 		Deserializer(const std::string filePath);
@@ -155,7 +169,6 @@ namespace inkwell
 		Project parseProject();
 	};
 	//doesnt support multiple projects in one file yet
-	//add backtracking through file to avoid some issues with formatting
 
 	class Serializer
 	{
@@ -177,5 +190,4 @@ namespace inkwell
 		~Serializer();
 		void writeProject(Project project);
 	};
-	// also output times triggered
 }
