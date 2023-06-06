@@ -10,26 +10,24 @@
 				{
 					"id": 1,
 					"key": "MyEvent",
-					"timesTriggered": 7
+					"value": 15
 				},
 				{
 					"id": 2,
 					"key": "MySecondEvent",
-					"timesTriggered": 0
+					"value": 0
 				}
 			],
 			"facts": [
 				{
 					"id": 3,
 					"key": "MyFact",
-					"factData": 21,
-					"timesTriggered": 0
+					"value": 0
 				},
 				{
 					"id": 4,
 					"key": "MySecondFact",
-					"factData": 33,
-					"timesTriggered": 0
+					"value": 0
 				}
 			],
 			"rules": [
@@ -57,7 +55,7 @@
 							"modifyWithValue": 42
 						}
 					],
-					"timesTriggered": 0
+					"value": 0
 				}
 			]
 		}

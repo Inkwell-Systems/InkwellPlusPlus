@@ -43,7 +43,7 @@ namespace inkwell
 		TABLES,
 		ID,
 		KEY,
-		TIMES_TRIGGERED,
+		VALUE,
 		EVENTS,
 		FACTS,
 		RULES,
@@ -78,7 +78,7 @@ namespace inkwell
 	public:
 		int id = 0;
 		std::string key = "";
-		int timesTriggered = 0;
+		int value = 0;
 	};
 
 	class Event : public Entry
@@ -88,8 +88,7 @@ namespace inkwell
 
 	class Fact : public Entry
 	{
-	public:
-		int data = 0;
+		
 	};
 
 	class Criterion
@@ -105,7 +104,7 @@ namespace inkwell
 	public:
 		int modifiedEntry = 0;
 		ModificationOperator modificationOperator = ModificationOperator::NULL_OPERATOR;
-		int value = 0;
+		int modifyWithValue = 0;
 	};
 
 	class Rule : public Entry

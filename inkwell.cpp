@@ -94,8 +94,8 @@ Keys enumConverter::toKey(std::string key)
 		return Keys::ID;
 	else if (key == "key")
 		return Keys::KEY;
-	else if (key == "timesTriggered")
-		return Keys::TIMES_TRIGGERED;
+	else if (key == "value")
+		return Keys::VALUE;
 	else if (key == "tables")
 		return Keys::TABLES;
 	else if (key == "events")
@@ -180,8 +180,8 @@ std::string enumConverter::toString(Keys k)
 		return "id";
 	else if(k == Keys::KEY)
 		return "key";
-	else if(k == Keys::TIMES_TRIGGERED)
-		return "timesTriggered";
+	else if(k == Keys::VALUE)
+		return "value";
 	else if(k == Keys::TABLES)
 		return "tables";
 	else if(k == Keys::EVENTS)
@@ -481,7 +481,7 @@ std::vector<Modification> Deserializer::parseModifications()
 		}
 		case Keys::MODIFY_WITH_VALUE:
 		{
-			modifications.back().value = this->getNextInteger();
+			modifications.back().modifyWithValue = this->getNextInteger();
 			break;
 		}
 		default: std::cout << "Invalid key at modifications!\n";
@@ -536,9 +536,9 @@ std::unordered_map<int, Event> Deserializer::parseEvents()
 			events[currentEventID].key = this->getNextString();
 			break;
 		}
-		case Keys::TIMES_TRIGGERED:
+		case Keys::VALUE:
 		{
-			events[currentEventID].timesTriggered = this->getNextInteger();
+			events[currentEventID].value = this->getNextInteger();
 			break;
 		}
 		default: std::cout << "Invalid key at event!\n";
@@ -595,12 +595,12 @@ std::unordered_map<int, Fact> Deserializer::parseFacts()
 		}
 		case Keys::FACT_DATA:
 		{
-			facts[currentFactID].data = this->getNextInteger();
+			facts[currentFactID].value = this->getNextInteger();
 			break;
 		}
-		case Keys::TIMES_TRIGGERED:
+		case Keys::VALUE:
 		{
-			facts[currentFactID].timesTriggered = this->getNextInteger();
+			facts[currentFactID].value = this->getNextInteger();
 			break;
 		}
 		default: std::cout << "Invalid key at facts!\n";
@@ -675,9 +675,9 @@ std::unordered_map<int, Rule> Deserializer::parseRules()
 			rules[currentRuleID].modifications = this->parseModifications();
 			break;
 		}
-		case Keys::TIMES_TRIGGERED:
+		case Keys::VALUE:
 		{
-			rules[currentRuleID].timesTriggered = this->getNextInteger();
+			rules[currentRuleID].value = this->getNextInteger();
 			break;
 		}
 		default: std::cout << "Invalid key at rule!\n";
@@ -879,7 +879,7 @@ void Serializer::writeModifications(std::vector<Modification> modifications)
 
 		this->format(); this->fileOutput << "\"modifiedEntry\": " << i.modifiedEntry << ",\n";
 		this->format(); this->fileOutput << "\"modificationOperator\": \"" << enumConverter::toString(i.modificationOperator) << "\",\n";
-		this->format(); this->fileOutput << "\"modifyWithValue\": " << i.value << "\n";
+		this->format(); this->fileOutput << "\"modifyWithValue\": " << i.modifyWithValue << "\n";
 
 		this->endObject(objIndex == objCount);
 	}
@@ -896,7 +896,7 @@ void Serializer::writeEvents(std::unordered_map<int, Event> events)
 
 		this->format(); this->fileOutput << "\"id\": " << event.second.id << ",\n";
 		this->format(); this->fileOutput << "\"key\": \"" << event.second.key << "\",\n";
-		this->format(); this->fileOutput << "\"timesTriggered\": " << event.second.timesTriggered << "\n";
+		this->format(); this->fileOutput << "\"value\": " << event.second.value << "\n";
 
 		this->endObject(objIndex == objCount);
 	}
@@ -913,8 +913,7 @@ void Serializer::writeFacts(std::unordered_map<int, Fact> facts)
 
 		this->format(); this->fileOutput << "\"id\": " << fact.second.id << ",\n";
 		this->format(); this->fileOutput << "\"key\": \"" << fact.second.key << "\",\n";
-		this->format(); this->fileOutput << "\"factData\": " << fact.second.data << ",\n";
-		this->format(); this->fileOutput << "\"timesTriggered\": " << fact.second.timesTriggered << "\n";
+		this->format(); this->fileOutput << "\"value\": " << fact.second.value << "\n";
 
 		this->endObject(objIndex == objCount);
 	}
@@ -948,7 +947,7 @@ void Serializer::writeRules(std::unordered_map<int, Rule> rules)
 		this->writeModifications(rule.second.modifications);
 		this->format(); this->fileOutput << "],\n";
 
-		this->format(); this->fileOutput << "\"timesTriggered\": " << rule.second.timesTriggered << "\n";
+		this->format(); this->fileOutput << "\"value\": " << rule.second.value << "\n";
 
 		this->endObject(objIndex == objCount);
 	}
