@@ -40,6 +40,7 @@ namespace inkwell
 		TABLES,
 		ID,
 		KEY,
+		TIMES_TRIGGERED,
 		EVENTS,
 		FACTS,
 		RULES,

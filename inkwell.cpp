@@ -191,6 +191,8 @@ Keys Deserializer::stringToKey(std::string key)
 		return ID;
 	else if (key == "key")
 		return KEY;
+	else if (key == "timesTriggered")
+		return TIMES_TRIGGERED;
 	else if (key == "tables")
 		return TABLES;
 	else if (key == "events")
@@ -704,7 +706,7 @@ void Serializer::writeIntArray(std::vector<int> arr)
 		++intIndex;
 
 		if(intIndex == intCount)
-			this->fileOutput << " " << i;
+			this->fileOutput << " " << i << " ";
 		else
 			this->fileOutput << " " << i << ",";
 	}
@@ -754,7 +756,8 @@ void Serializer::writeEvents(std::unordered_map<int, Event> events)
 		this->startObject();
 
 		this->format(); this->fileOutput << "\"id\": " << event.second.id << ",\n";
-		this->format(); this->fileOutput << "\"key\": \"" << event.second.key << "\"\n";
+		this->format(); this->fileOutput << "\"key\": \"" << event.second.key << "\",\n";
+		this->format(); this->fileOutput << "\"timesTriggered\": " << event.second.timesTriggered << "\n";
 
 		this->endObject(objIndex == objCount);
 	}
@@ -771,7 +774,8 @@ void Serializer::writeFacts(std::unordered_map<int, Fact> facts)
 
 		this->format(); this->fileOutput << "\"id\": " << fact.second.id << ",\n";
 		this->format(); this->fileOutput << "\"key\": \"" << fact.second.key << "\",\n";
-		this->format(); this->fileOutput << "\"data\": " << fact.second.data << "\n";
+		this->format(); this->fileOutput << "\"data\": " << fact.second.data << ",\n";
+		this->format(); this->fileOutput << "\"timesTriggered\": " << fact.second.timesTriggered << "\n";
 
 		this->endObject(objIndex == objCount);
 	}
@@ -803,7 +807,9 @@ void Serializer::writeRules(std::unordered_map<int, Rule> rules)
 
 		this->format(); this->fileOutput << "\"modifications\": [\n";
 		this->writeModifications(rule.second.modifications);
-		this->format(); this->fileOutput << "]\n";
+		this->format(); this->fileOutput << "],\n";
+
+		this->format(); this->fileOutput << "\"timesTriggered\": " << rule.second.timesTriggered << "\n";
 
 		this->endObject(objIndex == objCount);
 	}
