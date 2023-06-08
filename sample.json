@@ -10,7 +10,7 @@
 				{
 					"id": 1,
 					"key": "MyEvent",
-					"value": 15
+					"value": 22
 				},
 				{
 					"id": 2,
@@ -51,7 +51,7 @@
 					"ruleModifications": [
 						{
 							"modifiedEntry": 3,
-							"modificationOperator": "nullOperator",
+							"modificationOperator": "set",
 							"modifyWithValue": 42
 						}
 					],

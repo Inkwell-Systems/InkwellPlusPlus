@@ -82,7 +82,7 @@ void Table::setRules(std::vector<Rule> rules, ArrayOperator operation)
 
 // ENUM CONVERTER CLASS
 
-Keys enumConverter::toKey(std::string key)
+Keys EnumConverter::toKey(std::string key)
 {
 	if (key == "projectName")
 		return Keys::PROJECT_NAME;
@@ -120,45 +120,33 @@ Keys enumConverter::toKey(std::string key)
 		return Keys::COMPARE_VALUE;
 	else if (key == "comparisonOperator")
 		return Keys::COMPARISON_OPERATOR;
+	else if (key == "equal")
+		return Keys::COMPARISON_OPERATOR_EQUAL;
+	else if (key == "notEqual")
+		return Keys::COMPARISON_OPERATOR_NOT_EQUAL;
+	else if (key == "greaterThan")
+		return Keys::COMPARISON_OPERATOR_GREATER_THAN;
+	else if (key == "greaterThanOrEqual")
+		return Keys::COMPARISON_OPERATOR_GREATER_THAN_OR_EQUAL;
+	else if (key == "lessThan")
+		return Keys::COMPARISON_OPERATOR_LESS_THAN;
+	else if (key == "lessThanOrEqual")
+		return Keys::COMPARISON_OPERATOR_LESS_THAN_OR_EQUAL;
 	else if (key == "modifiedEntry")
 		return Keys::MODIFIED_ENTRY;
 	else if (key == "modificationOperator")
 		return Keys::MODIFICATION_OPERATOR;
+	else if (key == "set")
+		return Keys::MODIFICATION_OPERATOR_SET;
+	else if (key == "increment")
+		return Keys::MODIFICATION_OPERATOR_INCREMENT;
 	else if (key == "modifyWithValue")
 		return Keys::MODIFY_WITH_VALUE;
 
 	return Keys::NULL_KEY;
 }
 
-ComparisonOperator enumConverter::toComparisonOperator(std::string key)
-{
-	if(key == "equal")
-		return ComparisonOperator::EQUAL;
-	else if(key == "notEqual")
-		return ComparisonOperator::NOT_EQUAL;
-	else if(key == "greaterThan")
-		return ComparisonOperator::GREATER_THAN;
-	else if(key == "lessThan")
-		return ComparisonOperator::LESS_THAN;
-	else if(key == "greaterThanOrEqual")
-		return ComparisonOperator::GREATER_THAN_OR_EQUAL;
-	else if(key == "lessThanOrEqual")
-		return ComparisonOperator::LESS_THAN_OR_EQUAL;
-
-	return ComparisonOperator::NULL_OPERATOR;
-}
-
-ModificationOperator enumConverter::toModificationOperator(std::string key)
-{
-	if(key == "set")
-		return ModificationOperator::SET;
-	else if(key == "increment")
-		return ModificationOperator::INCREMENT;
-
-	return ModificationOperator::NULL_OPERATOR;
-}
-
-ArrayOperator enumConverter::toArrayOperator(std::string key)
+ArrayOperator EnumConverter::toArrayOperator(std::string key)
 {
 	if(key == "set")
 		return ArrayOperator::SET;
@@ -168,83 +156,71 @@ ArrayOperator enumConverter::toArrayOperator(std::string key)
 	return ArrayOperator::NULL_OPERATOR;
 }
 
-std::string enumConverter::toString(Keys k)
+std::string EnumConverter::toString(Keys k)
 {
-	if(k == Keys::PROJECT_NAME)
+	if (k == Keys::PROJECT_NAME)
 		return "projectName";
-	else if(k == Keys::PROJECT_DESCRIPTION)
+	else if (k == Keys::PROJECT_DESCRIPTION)
 		return "projectDescription";
-	else if(k == Keys::PROJECT_CREATEDAT)
+	else if (k == Keys::PROJECT_CREATEDAT)
 		return "projectCreatedAt";
-	else if(k == Keys::ID)
+	else if (k == Keys::ID)
 		return "id";
-	else if(k == Keys::KEY)
+	else if (k == Keys::KEY)
 		return "key";
-	else if(k == Keys::VALUE)
+	else if (k == Keys::VALUE)
 		return "value";
-	else if(k == Keys::TABLES)
+	else if (k == Keys::TABLES)
 		return "tables";
-	else if(k == Keys::EVENTS)
+	else if (k == Keys::EVENTS)
 		return "events";
-	else if(k == Keys::FACTS)
+	else if (k == Keys::FACTS)
 		return "facts";
-	else if(k == Keys::RULES)
+	else if (k == Keys::RULES)
 		return "rules";
-	else if(k == Keys::FACT_DATA)
+	else if (k == Keys::FACT_DATA)
 		return "factData";
-	else if(k == Keys::RULE_TRIGGERED_BY)
+	else if (k == Keys::RULE_TRIGGERED_BY)
 		return "ruleTriggeredBy";
-	else if(k == Keys::RULE_TRIGGERS)
+	else if (k == Keys::RULE_TRIGGERS)
 		return "ruleTriggers";
-	else if(k == Keys::RULE_CRITERIA)
+	else if (k == Keys::RULE_CRITERIA)
 		return "ruleCriteria";
-	else if(k == Keys::RULE_MODIFICATIONS)
+	else if (k == Keys::RULE_MODIFICATIONS)
 		return "ruleModifications";
-	else if(k == Keys::COMPARED_ENTRY)
+	else if (k == Keys::COMPARED_ENTRY)
 		return "comparedEntry";
-	else if(k == Keys::COMPARE_VALUE)
+	else if (k == Keys::COMPARE_VALUE)
 		return "compareValue";
-	else if(k == Keys::COMPARISON_OPERATOR)
+	else if (k == Keys::COMPARISON_OPERATOR)
 		return "comparisonOperator";
+	else if (k == Keys::COMPARISON_OPERATOR_EQUAL)
+		return "equal";
+	else if (k == Keys::COMPARISON_OPERATOR_NOT_EQUAL)
+		return "notEqual";
+	else if (k == Keys::COMPARISON_OPERATOR_GREATER_THAN)
+		return "greaterThan";
+	else if (k == Keys::COMPARISON_OPERATOR_GREATER_THAN_OR_EQUAL)
+		return "greaterThanOrEqual";
+	else if (k == Keys::COMPARISON_OPERATOR_LESS_THAN)
+		return "lessThan";
+	else if (k == Keys::COMPARISON_OPERATOR_LESS_THAN_OR_EQUAL)
+		return "lessThanOrEqual";
 	else if(k == Keys::MODIFIED_ENTRY)
 		return "modifiedEntry";
 	else if(k == Keys::MODIFICATION_OPERATOR)
 		return "modificationOperator";
+	else if(k == Keys::MODIFICATION_OPERATOR_SET)
+		return "set";
+	else if(k == Keys::MODIFICATION_OPERATOR_INCREMENT)
+		return "increment";
 	else if(k == Keys::MODIFY_WITH_VALUE)
 		return "modifyWithValue";
 
 	return "nullKey";
 }
 
-std::string enumConverter::toString(ComparisonOperator c)
-{
-	if(c == ComparisonOperator::EQUAL)
-		return "equal";
-	else if(c == ComparisonOperator::NOT_EQUAL)
-		return "notEqual";
-	else if(c == ComparisonOperator::GREATER_THAN)
-		return "greaterThan";
-	else if(c == ComparisonOperator::LESS_THAN)
-		return "lessThan";
-	else if(c == ComparisonOperator::GREATER_THAN_OR_EQUAL)
-		return "greaterThanOrEqual";
-	else if(c == ComparisonOperator::LESS_THAN_OR_EQUAL)
-		return "lessThanOrEqual";
-
-	return "nullOperator";
-}
-
-std::string enumConverter::toString(ModificationOperator m)
-{
-	if(m == ModificationOperator::SET)
-		return "set";
-	else if(m == ModificationOperator::INCREMENT)
-		return "increment";
-
-	return "nullOperator";
-}
-
-std::string enumConverter::toString(ArrayOperator a)
+std::string EnumConverter::toString(ArrayOperator a)
 {
 	if(a == ArrayOperator::SET)
 		return "set";
@@ -268,19 +244,18 @@ Deserializer::~Deserializer()
 
 std::string Deserializer::getNextString()
 {
-	this->read = 0;
 	std::string str = "";
 
 	while (this->read != '"') // reach 1st quotation mark
 		this->fileInput.get(this->read);
-	this->fileInput.get(this->read); // skip 1st quotation mark lol
+	this->fileInput.get(this->read);
 
 	while (this->read != '"')
 	{
 		str += this->read;
 		this->fileInput.get(this->read);
 	}
-	// shove chars in str until 2nd quotation mark
+	this->fileInput.get(this->read); // skip 2nd quotation mark
 
 	return str;
 }
@@ -319,51 +294,22 @@ int Deserializer::getNextInteger()
 	return integer;
 }
 
-ComparisonOperator Deserializer::getNextComparisonOperator()
-{
-	std::string op = this->getNextString();
-
-	if(op == "equal")
-		return ComparisonOperator::EQUAL;
-	else if(op == "notEqual")
-		return ComparisonOperator::NOT_EQUAL;
-	else if(op == "lessThan")
-		return ComparisonOperator::LESS_THAN;
-	else if(op == "lessThanOrEqual")
-		return ComparisonOperator::LESS_THAN_OR_EQUAL;
-	else if(op == "greaterThan")
-		return ComparisonOperator::GREATER_THAN;
-	else if(op == "greaterThanOrEqual")
-		return ComparisonOperator::GREATER_THAN_OR_EQUAL;
-	
-	return ComparisonOperator::NULL_OPERATOR;
-}
-
-ModificationOperator Deserializer::getNextModificationOperator()
-{
-	std::string op = this->getNextString();
-
-	if (op == "SET")
-		return ModificationOperator::SET;
-	else if (op == "INCREMENT")
-		return ModificationOperator::INCREMENT;
-
-	return ModificationOperator::NULL_OPERATOR;
-}
-
 Keys Deserializer::getNextKey()
 {
-	this->read = 0;
-
-	this->fileInput.get(this->read); // skip 1st quotation mark
 	std::string key = "";
-	while (this->read != '"') // this->read until 2nd quotation mark
+
+	while (this->read != '"') // reach 1st quotation mark
+		this->fileInput.get(this->read);
+	this->fileInput.get(this->read);
+
+	while (this->read != '"')
 	{
 		key += this->read;
 		this->fileInput.get(this->read);
 	}
+	this->fileInput.get(this->read); // skip 2nd quotation mark
 
-	return enumConverter::toKey(key);
+	return EnumConverter::toKey(key);
 }
 
 std::vector<int> Deserializer::parseIntArray()
@@ -428,7 +374,7 @@ std::vector<Criterion> Deserializer::parseCriteria()
 		}
 		case Keys::COMPARISON_OPERATOR:
 		{
-			criteria.back().comparisonOperator = this->getNextComparisonOperator();
+			criteria.back().comparisonOperator = this->getNextKey();
 			break;
 		}
 		default: std::cout << "Invalid key in criteria!\n";
@@ -476,7 +422,7 @@ std::vector<Modification> Deserializer::parseModifications()
 		}
 		case Keys::MODIFICATION_OPERATOR:
 		{
-			modifications.back().modificationOperator = this->getNextModificationOperator();
+			modifications.back().modificationOperator = this->getNextKey();
 			break;
 		}
 		case Keys::MODIFY_WITH_VALUE:
@@ -788,7 +734,7 @@ Project Deserializer::parseProject()
 			project.tables = this->parseTables();
 			break;
 		}
-		default: std::cout << "Key seems to be invalid!\n";
+		default: std::cout << "Invalid key in project!\n";
 		}
 	}
 
@@ -862,7 +808,7 @@ void Serializer::writeCriteria(std::vector<Criterion> criteria)
 		
 		this->format(); this->fileOutput << "\"comparedEntry\": " << i.comparedEntry << ",\n";
 		this->format(); this->fileOutput << "\"compareValue\": " << i.compareValue << ",\n";
-		this->format(); this->fileOutput << "\"comparisonOperator\": \"" << enumConverter::toString(i.comparisonOperator) << "\"\n";
+		this->format(); this->fileOutput << "\"comparisonOperator\": \"" << EnumConverter::toString(i.comparisonOperator) << "\"\n";
 
 		this->endObject(objIndex == objCount);
 	}
@@ -878,7 +824,7 @@ void Serializer::writeModifications(std::vector<Modification> modifications)
 		this->startObject();
 
 		this->format(); this->fileOutput << "\"modifiedEntry\": " << i.modifiedEntry << ",\n";
-		this->format(); this->fileOutput << "\"modificationOperator\": \"" << enumConverter::toString(i.modificationOperator) << "\",\n";
+		this->format(); this->fileOutput << "\"modificationOperator\": \"" << EnumConverter::toString(i.modificationOperator) << "\",\n";
 		this->format(); this->fileOutput << "\"modifyWithValue\": " << i.modifyWithValue << "\n";
 
 		this->endObject(objIndex == objCount);

@@ -8,25 +8,6 @@
 
 namespace inkwell
 {
-	enum class ComparisonOperator
-	{
-		NULL_OPERATOR,
-		EQUAL,
-		NOT_EQUAL,
-		GREATER_THAN,
-		LESS_THAN,
-		GREATER_THAN_OR_EQUAL,
-		LESS_THAN_OR_EQUAL
-	};
-
-	enum class ModificationOperator
-	{
-		NULL_OPERATOR,
-		SET,
-		INCREMENT
-	};
-	// Fix this
-
 	enum class ArrayOperator
 	{
 		NULL_OPERATOR,
@@ -55,21 +36,25 @@ namespace inkwell
 		COMPARED_ENTRY,
 		COMPARE_VALUE,
 		COMPARISON_OPERATOR,
+		COMPARISON_OPERATOR_EQUAL,
+		COMPARISON_OPERATOR_NOT_EQUAL,
+		COMPARISON_OPERATOR_GREATER_THAN,
+		COMPARISON_OPERATOR_LESS_THAN,
+		COMPARISON_OPERATOR_GREATER_THAN_OR_EQUAL,
+		COMPARISON_OPERATOR_LESS_THAN_OR_EQUAL,
 		MODIFIED_ENTRY,
 		MODIFICATION_OPERATOR,
+		MODIFICATION_OPERATOR_SET,
+		MODIFICATION_OPERATOR_INCREMENT,
 		MODIFY_WITH_VALUE
 	};
 
-	class enumConverter
+	class EnumConverter
 	{
 	public:
 		static Keys toKey(std::string key);
-		static ComparisonOperator toComparisonOperator(std::string key);
-		static ModificationOperator toModificationOperator(std::string key);
 		static ArrayOperator toArrayOperator(std::string key);
 		static std::string toString(Keys k);
-		static std::string toString(ComparisonOperator c);
-		static std::string toString(ModificationOperator m);
 		static std::string toString(ArrayOperator a);
 	};
 
@@ -96,14 +81,14 @@ namespace inkwell
 	public:
 		int comparedEntry = 0;
 		int compareValue = 0;
-		ComparisonOperator comparisonOperator = ComparisonOperator::NULL_OPERATOR;
+		Keys comparisonOperator = Keys::NULL_KEY;
 	};
 
 	class Modification
 	{
 	public:
 		int modifiedEntry = 0;
-		ModificationOperator modificationOperator = ModificationOperator::NULL_OPERATOR;
+		Keys modificationOperator = Keys::NULL_KEY;
 		int modifyWithValue = 0;
 	};
 
@@ -159,8 +144,6 @@ namespace inkwell
 		Keys getNextKey();
 		std::string getNextString();
 		int getNextInteger();
-		ComparisonOperator getNextComparisonOperator();
-		ModificationOperator getNextModificationOperator();
 
 	public:
 		Deserializer(const std::string filePath);
