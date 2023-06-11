@@ -2,6 +2,12 @@
 
 using namespace inkwell;
 
+void Rule::dispatchCallbacks()
+{
+	for(auto i : this->callbacks)
+		i();
+}
+
 // GETTERS AND SETTERS
 
 void Rule::setTriggeredBy(std::vector<int> triggeredBy, ArrayOperator operation)
@@ -24,7 +30,7 @@ void Rule::setTriggers(std::vector<int> triggers, ArrayOperator operation)
 		std::cout << "error at Rule::setTriggers\n";
 }
 
-void Rule::setCriteria(std::vector<Criterion> criteria, ArrayOperator operation)
+void Rule::setCriteria(std::vector<Criterion*> criteria, ArrayOperator operation)
 {
 	if (operation == ArrayOperator::SET)
 		this->criteria = criteria;
@@ -34,7 +40,7 @@ void Rule::setCriteria(std::vector<Criterion> criteria, ArrayOperator operation)
 		std::cout << "error at Rule::setCriteria\n";
 }
 
-void Rule::setModifications(std::vector<Modification> modifications, ArrayOperator operation)
+void Rule::setModifications(std::vector<Modification*> modifications, ArrayOperator operation)
 {
 	if (operation == ArrayOperator::SET)
 		this->modifications = modifications;
@@ -44,37 +50,37 @@ void Rule::setModifications(std::vector<Modification> modifications, ArrayOperat
 		std::cout << "error at Rule::setModifications\n";
 }
 
-void Table::setEvents(std::vector<Event> events, ArrayOperator operation)
+void Table::setEvents(std::vector<Event*> events, ArrayOperator operation)
 {
 	if (operation == ArrayOperator::SET)
 		this->events.clear();
 
-	for (Event i : events)
-		this->events.insert({ i.id, i });
+	for (Event* i : events)
+		this->events.insert({ i->id, i });
 
 	if (operation != ArrayOperator::SET and operation != ArrayOperator::ADD)
 		std::cout << "error at Table::setEvents\n";
 }
 
-void Table::setFacts(std::vector<Fact> facts, ArrayOperator operation)
+void Table::setFacts(std::vector<Fact*> facts, ArrayOperator operation)
 {
 	if (operation == ArrayOperator::SET)
 		this->facts.clear();
 
-	for (Fact i : facts)
-		this->facts.insert({ i.id, i });
+	for (Fact* i : facts)
+		this->facts.insert({ i->id, i });
 
 	if (operation != ArrayOperator::SET and operation != ArrayOperator::ADD)
 		std::cout << "error at Table::setFacts\n";
 }
 
-void Table::setRules(std::vector<Rule> rules, ArrayOperator operation)
+void Table::setRules(std::vector<Rule*> rules, ArrayOperator operation)
 {
 	if (operation == ArrayOperator::SET)
 		this->rules.clear();
 
-	for (Rule i : rules)
-		this->rules.insert({ i.id, i });
+	for (Rule* i : rules)
+		this->rules.insert({ i->id, i });
 
 	if (operation != ArrayOperator::SET and operation != ArrayOperator::ADD)
 		std::cout << "error at Table::setRules\n";
@@ -331,10 +337,10 @@ std::vector<int> Deserializer::parseIntArray()
 	return arr;
 }
 
-std::vector<Criterion> Deserializer::parseCriteria()
+std::vector<Criterion*> Deserializer::parseCriteria()
 {
 	this->read = 0;
-	std::vector<Criterion> criteria;
+	std::vector<Criterion*> criteria;
 	int nestingIndex = 1;
 
 	while (this->read != '[')
@@ -363,18 +369,18 @@ std::vector<Criterion> Deserializer::parseCriteria()
 		{
 		case Keys::COMPARED_ENTRY:
 		{
-			criteria.push_back(Criterion());
-			criteria.back().comparedEntry = this->getNextInteger();
+			criteria.push_back(new Criterion());
+			criteria.back()->entryID = this->getNextInteger();
 			break;
 		}
 		case Keys::COMPARE_VALUE:
 		{
-			criteria.back().compareValue = this->getNextInteger();
+			criteria.back()->compareValue = this->getNextInteger();
 			break;
 		}
 		case Keys::COMPARISON_OPERATOR:
 		{
-			criteria.back().comparisonOperator = this->getNextKey();
+			criteria.back()->comparisonOperator = this->getNextKey();
 			break;
 		}
 		default: std::cout << "Invalid key in criteria!\n";
@@ -384,10 +390,10 @@ std::vector<Criterion> Deserializer::parseCriteria()
 	return criteria;
 }
 
-std::vector<Modification> Deserializer::parseModifications()
+std::vector<Modification*> Deserializer::parseModifications()
 {
 	this->read = 0;
-	std::vector<Modification> modifications;
+	std::vector<Modification*> modifications;
 	int nestingIndex = 1;
 
 	while (this->read != '[')
@@ -416,18 +422,18 @@ std::vector<Modification> Deserializer::parseModifications()
 		{
 		case Keys::MODIFIED_ENTRY:
 		{
-			modifications.push_back(Modification());
-			modifications.back().modifiedEntry = this->getNextInteger();
+			modifications.push_back(new Modification());
+			modifications.back()->entryID = this->getNextInteger();
 			break;
 		}
 		case Keys::MODIFICATION_OPERATOR:
 		{
-			modifications.back().modificationOperator = this->getNextKey();
+			modifications.back()->modificationOperator = this->getNextKey();
 			break;
 		}
 		case Keys::MODIFY_WITH_VALUE:
 		{
-			modifications.back().modifyWithValue = this->getNextInteger();
+			modifications.back()->modifyWithValue = this->getNextInteger();
 			break;
 		}
 		default: std::cout << "Invalid key at modifications!\n";
@@ -437,10 +443,10 @@ std::vector<Modification> Deserializer::parseModifications()
 	return modifications;
 }
 
-std::unordered_map<int, Event> Deserializer::parseEvents()
+std::unordered_map<int, Event*> Deserializer::parseEvents()
 {
 	this->read = 0;
-	std::unordered_map<int, Event> events;
+	std::unordered_map<int, Event*> events;
 	int currentEventID = 0;
 	int nestingIndex = 1;
 
@@ -473,18 +479,18 @@ std::unordered_map<int, Event> Deserializer::parseEvents()
 		case Keys::ID:
 		{
 			currentEventID = this->getNextInteger();
-			events.insert({ currentEventID, Event() });
-			events[currentEventID].id = currentEventID;
+			events.insert({ currentEventID, new Event() });
+			events[currentEventID]->id = currentEventID;
 			break;
 		}
 		case Keys::KEY:
 		{
-			events[currentEventID].key = this->getNextString();
+			events[currentEventID]->key = this->getNextString();
 			break;
 		}
 		case Keys::VALUE:
 		{
-			events[currentEventID].value = this->getNextInteger();
+			events[currentEventID]->value = this->getNextInteger();
 			break;
 		}
 		default: std::cout << "Invalid key at event!\n";
@@ -494,10 +500,10 @@ std::unordered_map<int, Event> Deserializer::parseEvents()
 	return events;
 }
 
-std::unordered_map<int, Fact> Deserializer::parseFacts()
+std::unordered_map<int, Fact*> Deserializer::parseFacts()
 {
 	this->read = 0;
-	std::unordered_map<int, Fact> facts;
+	std::unordered_map<int, Fact*> facts;
 	int currentFactID = 0;
 	int nestingIndex = 1;
 
@@ -530,23 +536,18 @@ std::unordered_map<int, Fact> Deserializer::parseFacts()
 		case Keys::ID: // start of new fact
 		{
 			currentFactID = this->getNextInteger();
-			facts.insert({ currentFactID, Fact() });
-			facts[currentFactID].id = currentFactID;
+			facts.insert({ currentFactID, new Fact() });
+			facts[currentFactID]->id = currentFactID;
 			break;
 		}
 		case Keys::KEY:
 		{
-			facts[currentFactID].key = this->getNextString();
-			break;
-		}
-		case Keys::FACT_DATA:
-		{
-			facts[currentFactID].value = this->getNextInteger();
+			facts[currentFactID]->key = this->getNextString();
 			break;
 		}
 		case Keys::VALUE:
 		{
-			facts[currentFactID].value = this->getNextInteger();
+			facts[currentFactID]->value = this->getNextInteger();
 			break;
 		}
 		default: std::cout << "Invalid key at facts!\n";
@@ -556,10 +557,10 @@ std::unordered_map<int, Fact> Deserializer::parseFacts()
 	return facts;
 }
 
-std::unordered_map<int, Rule> Deserializer::parseRules()
+std::unordered_map<int, Rule*> Deserializer::parseRules()
 {
 	this->read = 0;
-	std::unordered_map<int, Rule> rules;
+	std::unordered_map<int, Rule*> rules;
 	int currentRuleID = 0;
 	int nestingIndex = 1;
 
@@ -592,38 +593,38 @@ std::unordered_map<int, Rule> Deserializer::parseRules()
 		case Keys::ID: // start of new rule
 		{
 			currentRuleID = this->getNextInteger();
-			rules.insert({ currentRuleID, Rule() });
-			rules[currentRuleID].id = currentRuleID;
+			rules.insert({ currentRuleID, new Rule() });
+			rules[currentRuleID]->id = currentRuleID;
 			break;
 		}
 		case Keys::KEY:
 		{
-			rules[currentRuleID].key = this->getNextString();
+			rules[currentRuleID]->key = this->getNextString();
 			break;
 		}
 		case Keys::RULE_TRIGGERED_BY:
 		{
-			rules[currentRuleID].triggeredBy = this->parseIntArray();
+			rules[currentRuleID]->triggeredBy = this->parseIntArray();
 			break;
 		}
 		case Keys::RULE_TRIGGERS:
 		{
-			rules[currentRuleID].triggers = this->parseIntArray();
+			rules[currentRuleID]->triggers = this->parseIntArray();
 			break;
 		}
 		case Keys::RULE_CRITERIA: 
 		{
-			rules[currentRuleID].criteria = this->parseCriteria();
+			rules[currentRuleID]->criteria = this->parseCriteria();
 			break;
 		}
 		case Keys::RULE_MODIFICATIONS:
 		{
-			rules[currentRuleID].modifications = this->parseModifications();
+			rules[currentRuleID]->modifications = this->parseModifications();
 			break;
 		}
 		case Keys::VALUE:
 		{
-			rules[currentRuleID].value = this->getNextInteger();
+			rules[currentRuleID]->value = this->getNextInteger();
 			break;
 		}
 		default: std::cout << "Invalid key at rule!\n";
@@ -633,10 +634,10 @@ std::unordered_map<int, Rule> Deserializer::parseRules()
 	return rules;
 }
 
-std::unordered_map<int, Table> Deserializer::parseTables()
+std::unordered_map<int, Table*> Deserializer::parseTables()
 {
 	this->read = 0;
-	std::unordered_map<int, Table> tables;
+	std::unordered_map<int, Table*> tables;
 	int currentTableID = 0;
 	int nestingIndex = 1;
 
@@ -669,28 +670,28 @@ std::unordered_map<int, Table> Deserializer::parseTables()
 		case Keys::ID:
 		{
 			currentTableID = this->getNextInteger();
-			tables.insert({ currentTableID, Table() });
-			tables[currentTableID].id = currentTableID;
+			tables.insert({ currentTableID, new Table() });
+			tables[currentTableID]->id = currentTableID;
 			break;
 		}
 		case Keys::KEY:
 		{
-			tables[currentTableID].key = this->getNextString();
+			tables[currentTableID]->key = this->getNextString();
 			break;
 		}
 		case Keys::EVENTS:
 		{
-			tables[currentTableID].events = this->parseEvents();
+			tables[currentTableID]->events = this->parseEvents();
 			break;
 		}
 		case Keys::FACTS:
 		{
-			tables[currentTableID].facts = this->parseFacts();
+			tables[currentTableID]->facts = this->parseFacts();
 			break;
 		}
 		case Keys::RULES:
 		{
-			tables[currentTableID].rules = this->parseRules();
+			tables[currentTableID]->rules = this->parseRules();
 			break;
 		}
 		default: std::cout << "Invalid key at table!\n";
@@ -700,10 +701,9 @@ std::unordered_map<int, Table> Deserializer::parseTables()
 	return tables;
 }
 
-Project Deserializer::parseProject()
+Project* Deserializer::parseProject()
 {
-	
-	Project project;
+	Project* project = new Project();
 
 	while (this->fileInput.get(this->read))
 	{
@@ -716,22 +716,22 @@ Project Deserializer::parseProject()
 		{
 		case Keys::PROJECT_NAME:
 		{
-			project.name = this->getNextString(); 
+			project->name = this->getNextString(); 
 			break;
 		}
 		case Keys::PROJECT_DESCRIPTION:
 		{
-			project.description = this->getNextString(); 
+			project->description = this->getNextString(); 
 			break;
 		}
 		case Keys::PROJECT_CREATEDAT:
 		{
-			project.createdAtNano = this->getNextInteger(); 
+			project->createdAtNano = this->getNextInteger(); 
 			break;
 		}
 		case Keys::TABLES: 
 		{
-			project.tables = this->parseTables();
+			project->tables = this->parseTables();
 			break;
 		}
 		default: std::cout << "Invalid key in project!\n";
@@ -797,147 +797,147 @@ void Serializer::writeIntArray(std::vector<int> arr)
 	}
 }
 
-void Serializer::writeCriteria(std::vector<Criterion> criteria)
+void Serializer::writeCriteria(std::vector<Criterion*> criteria)
 {
 	int objCount = (int)criteria.size(), objIndex = 0;
 
-	for (auto i : criteria)
+	for (Criterion* i : criteria)
 	{
 		++objIndex;
 		this->startObject();
 		
-		this->format(); this->fileOutput << "\"comparedEntry\": " << i.comparedEntry << ",\n";
-		this->format(); this->fileOutput << "\"compareValue\": " << i.compareValue << ",\n";
-		this->format(); this->fileOutput << "\"comparisonOperator\": \"" << EnumConverter::toString(i.comparisonOperator) << "\"\n";
+		this->format(); this->fileOutput << "\"comparedEntry\": " << i->entryID << ",\n";
+		this->format(); this->fileOutput << "\"compareValue\": " << i->compareValue << ",\n";
+		this->format(); this->fileOutput << "\"comparisonOperator\": \"" << EnumConverter::toString(i->comparisonOperator) << "\"\n";
 
 		this->endObject(objIndex == objCount);
 	}
 }
 
-void Serializer::writeModifications(std::vector<Modification> modifications)
+void Serializer::writeModifications(std::vector<Modification*> modifications)
 {
 	int objCount = (int)modifications.size(), objIndex = 0;
 
-	for (auto i : modifications)
+	for (Modification* i : modifications)
 	{
 		++objIndex;
 		this->startObject();
 
-		this->format(); this->fileOutput << "\"modifiedEntry\": " << i.modifiedEntry << ",\n";
-		this->format(); this->fileOutput << "\"modificationOperator\": \"" << EnumConverter::toString(i.modificationOperator) << "\",\n";
-		this->format(); this->fileOutput << "\"modifyWithValue\": " << i.modifyWithValue << "\n";
+		this->format(); this->fileOutput << "\"modifiedEntry\": " << i->entryID << ",\n";
+		this->format(); this->fileOutput << "\"modificationOperator\": \"" << EnumConverter::toString(i->modificationOperator) << "\",\n";
+		this->format(); this->fileOutput << "\"modifyWithValue\": " << i->modifyWithValue << "\n";
 
 		this->endObject(objIndex == objCount);
 	}
 }
 
-void Serializer::writeEvents(std::unordered_map<int, Event> events)
+void Serializer::writeEvents(std::unordered_map<int, Event*> events)
 {
 	int objCount = (int)events.size(), objIndex = 0;
 
-	for (auto event : events)
+	for (std::pair<int, Event*> event : events)
 	{
 		++objIndex;
 		this->startObject();
 
-		this->format(); this->fileOutput << "\"id\": " << event.second.id << ",\n";
-		this->format(); this->fileOutput << "\"key\": \"" << event.second.key << "\",\n";
-		this->format(); this->fileOutput << "\"value\": " << event.second.value << "\n";
+		this->format(); this->fileOutput << "\"id\": " << event.second->id << ",\n";
+		this->format(); this->fileOutput << "\"key\": \"" << event.second->key << "\",\n";
+		this->format(); this->fileOutput << "\"value\": " << event.second->value << "\n";
 
 		this->endObject(objIndex == objCount);
 	}
 }
 
-void Serializer::writeFacts(std::unordered_map<int, Fact> facts)
+void Serializer::writeFacts(std::unordered_map<int, Fact*> facts)
 {
 	int objCount = (int)facts.size(), objIndex = 0;
 
-	for (auto fact : facts)
+	for (std::pair<int, Fact*> fact : facts)
 	{
 		++objIndex;
 		this->startObject();
 
-		this->format(); this->fileOutput << "\"id\": " << fact.second.id << ",\n";
-		this->format(); this->fileOutput << "\"key\": \"" << fact.second.key << "\",\n";
-		this->format(); this->fileOutput << "\"value\": " << fact.second.value << "\n";
+		this->format(); this->fileOutput << "\"id\": " << fact.second->id << ",\n";
+		this->format(); this->fileOutput << "\"key\": \"" << fact.second->key << "\",\n";
+		this->format(); this->fileOutput << "\"value\": " << fact.second->value << "\n";
 
 		this->endObject(objIndex == objCount);
 	}
 }
 
-void Serializer::writeRules(std::unordered_map<int, Rule> rules)
+void Serializer::writeRules(std::unordered_map<int, Rule*> rules)
 {
 	int objCount = (int)rules.size(), objIndex = 0;
 
-	for (auto rule : rules)
+	for (std::pair<int, Rule*> rule : rules)
 	{
 		++objIndex;
 		this->startObject();
 		
-		this->format(); this->fileOutput << "\"id\": " << rule.second.id << ",\n";
-		this->format(); this->fileOutput << "\"key\": \"" << rule.second.key << "\",\n";
+		this->format(); this->fileOutput << "\"id\": " << rule.second->id << ",\n";
+		this->format(); this->fileOutput << "\"key\": \"" << rule.second->key << "\",\n";
 
 		this->format(); this->fileOutput << "\"ruleTriggeredBy\": [";
-		writeIntArray(rule.second.triggeredBy);
+		writeIntArray(rule.second->triggeredBy);
 		this->fileOutput << "],\n";
 
 		this->format(); this->fileOutput << "\"ruleTriggers\": [";
-		writeIntArray(rule.second.triggers);
+		writeIntArray(rule.second->triggers);
 		this->fileOutput << "],\n";
 
 		this->format(); this->fileOutput << "\"ruleCriteria\": [\n";
-		this->writeCriteria(rule.second.criteria);
+		this->writeCriteria(rule.second->criteria);
 		this->format(); this->fileOutput << "],\n";
 
 		this->format(); this->fileOutput << "\"ruleModifications\": [\n";
-		this->writeModifications(rule.second.modifications);
+		this->writeModifications(rule.second->modifications);
 		this->format(); this->fileOutput << "],\n";
 
-		this->format(); this->fileOutput << "\"value\": " << rule.second.value << "\n";
+		this->format(); this->fileOutput << "\"value\": " << rule.second->value << "\n";
 
 		this->endObject(objIndex == objCount);
 	}
 }
 
-void Serializer::writeTables(std::unordered_map<int, Table> tables)
+void Serializer::writeTables(std::unordered_map<int, Table*> tables)
 {
 	int objCount = (int)tables.size(), objIndex = 0;
 
-	for (auto table : tables)
+	for (std::pair<int, Table*> table : tables)
 	{
 		++objIndex;
 		this->startObject();
 
-		this->format(); this->fileOutput << "\"id\": " << table.second.id << ",\n";
-		this->format(); this->fileOutput << "\"key\": \"" << table.second.key << "\",\n";
+		this->format(); this->fileOutput << "\"id\": " << table.second->id << ",\n";
+		this->format(); this->fileOutput << "\"key\": \"" << table.second->key << "\",\n";
 
 		this->format(); this->fileOutput << "\"events\": [\n";
-		this->writeEvents(table.second.events);
+		this->writeEvents(table.second->events);
 		this->format(); this->fileOutput << "],\n";
 
 		this->format(); this->fileOutput << "\"facts\": [\n";
-		this->writeFacts(table.second.facts);
+		this->writeFacts(table.second->facts);
 		this->format(); this->fileOutput << "],\n";
 
 		this->format(); this->fileOutput << "\"rules\": [\n";
-		this->writeRules(table.second.rules);
+		this->writeRules(table.second->rules);
 		this->format(); this->fileOutput << "]\n";
 
 		this->endObject(objIndex == objCount);
 	}
 }
 
-void Serializer::writeProject(Project project)
+void Serializer::writeProject(Project* project)
 {
 	this->fileOutput << "{\n";
 	++this->globalNestingLevel;
 
-	this->format(); this->fileOutput << "\"projectName\": \"" << project.name << "\",\n";
-	this->format(); this->fileOutput << "\"projectDescription\": \"" << project.description << "\",\n";
-	this->format(); this->fileOutput << "\"projectCreatedAt\": " << project.createdAtNano << ",\n";
+	this->format(); this->fileOutput << "\"projectName\": \"" << project->name << "\",\n";
+	this->format(); this->fileOutput << "\"projectDescription\": \"" << project->description << "\",\n";
+	this->format(); this->fileOutput << "\"projectCreatedAt\": " << project->createdAtNano << ",\n";
 
 	this->format(); this->fileOutput << "\"tables\": [\n";
-	this->writeTables(project.tables);
+	this->writeTables(project->tables);
 	this->format(); this->fileOutput << "]\n";
 
 	this->fileOutput << "}\n";
