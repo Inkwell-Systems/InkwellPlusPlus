@@ -2,7 +2,7 @@
 
 int main()
 {
-	inkwell::Project* project;
+	std::shared_ptr<inkwell::Project> project;
 	inkwell::Deserializer parser("sample.json");
 
 	project = parser.parseProject();

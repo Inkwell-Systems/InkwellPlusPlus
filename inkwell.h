@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 /*
 IMPORTANT: Watch out for memory leaks! The deserializer allocates memory for the project, tables, events, facts, rules, criteria, and modifications.
@@ -83,7 +84,7 @@ namespace inkwell
 	class Criterion
 	{
 	public:
-		Entry* comparedEntry = 0;
+		std::shared_ptr<Entry> comparedEntry = 0;
 		int entryID = 0;
 		int compareValue = 0;
 		Keys comparisonOperator = Keys::NULL_KEY;
@@ -92,7 +93,7 @@ namespace inkwell
 	class Modification
 	{
 	public:
-		Entry* modifiedEntry = 0;
+		std::shared_ptr <Entry> modifiedEntry = 0;
 		int entryID = 0;
 		Keys modificationOperator = Keys::NULL_KEY;
 		int modifyWithValue = 0;
@@ -103,13 +104,13 @@ namespace inkwell
 	public:
 		std::vector<int> triggeredBy;
 		std::vector<int> triggers;
-		std::vector<Criterion*> criteria;
-		std::vector<Modification*> modifications;
+		std::vector<std::shared_ptr<Criterion>> criteria;
+		std::vector<std::shared_ptr<Modification>> modifications;
 		std::vector<void(*)()> callbacks;
 		void setTriggeredBy(std::vector<int> triggeredBy, ArrayOperator operation);
 		void setTriggers(std::vector<int> triggers, ArrayOperator operation);
-		void setCriteria(std::vector<Criterion*> criteria, ArrayOperator operation);
-		void setModifications(std::vector<Modification*> modifications, ArrayOperator operation);
+		void setCriteria(std::vector<std::shared_ptr<Criterion>> criteria, ArrayOperator operation);
+		void setModifications(std::vector<std::shared_ptr<Modification>> modifications, ArrayOperator operation);
 		void dispatchCallbacks();
 	};
 
@@ -118,12 +119,12 @@ namespace inkwell
 	public:
 		int id = 0;
 		std::string key = "";
-		std::unordered_map<int, Event*> events;
-		std::unordered_map<int, Fact*> facts;
-		std::unordered_map<int, Rule*> rules;
-		void setEvents(std::vector<Event*> events, ArrayOperator operation);
-		void setFacts(std::vector<Fact*> facts, ArrayOperator operation);
-		void setRules(std::vector<Rule*> rules, ArrayOperator operation);
+		std::unordered_map<int, std::shared_ptr<Event>> events;
+		std::unordered_map<int, std::shared_ptr<Fact>> facts;
+		std::unordered_map<int, std::shared_ptr<Rule>> rules;
+		void setEvents(std::vector<std::shared_ptr<Event>> events, ArrayOperator operation);
+		void setFacts(std::vector<std::shared_ptr<Fact>> facts, ArrayOperator operation);
+		void setRules(std::vector<std::shared_ptr<Rule>> rules, ArrayOperator operation);
 	};
 
 	class Project
@@ -132,7 +133,7 @@ namespace inkwell
 		std::string name = "";
 		std::string description = "";
 		int createdAtNano = 0;
-		std::unordered_map<int, Table*> tables;
+		std::unordered_map<int, std::shared_ptr<Table>> tables;
 	};
 
 	class Deserializer
@@ -140,12 +141,12 @@ namespace inkwell
 	private:
 		std::ifstream fileInput;
 		char read = 0;
-		std::unordered_map<int, Table*> parseTables();
-		std::unordered_map<int, Event*> parseEvents();
-		std::unordered_map<int, Fact*> parseFacts();
-		std::unordered_map<int, Rule*> parseRules();
-		std::vector<Criterion*> parseCriteria();
-		std::vector<Modification*> parseModifications();
+		std::unordered_map<int, std::shared_ptr<Table>> parseTables();
+		std::unordered_map<int, std::shared_ptr<Event>> parseEvents();
+		std::unordered_map<int, std::shared_ptr<Fact>> parseFacts();
+		std::unordered_map<int, std::shared_ptr<Rule>> parseRules();
+		std::vector<std::shared_ptr<Criterion>> parseCriteria();
+		std::vector<std::shared_ptr<Modification>> parseModifications();
 		std::vector<int> parseIntArray();
 		Keys getNextKey();
 		std::string getNextString();
@@ -154,7 +155,7 @@ namespace inkwell
 	public:
 		Deserializer(const std::string filePath);
 		~Deserializer();
-		Project* parseProject();
+		std::shared_ptr<Project> parseProject();
 	};
 	//doesnt support multiple projects in one file yet
 
@@ -166,16 +167,16 @@ namespace inkwell
 		void format();
 		void startObject();
 		void endObject(bool isLast);
-		void writeTables(std::unordered_map<int, Table*> tables);
-		void writeEvents(std::unordered_map<int, Event*> events);
-		void writeFacts(std::unordered_map<int, Fact*> facts);
-		void writeRules(std::unordered_map<int, Rule*> rules);
-		void writeCriteria(std::vector<Criterion*> criteria);
-		void writeModifications(std::vector<Modification*> modifications);
+		void writeTables(std::unordered_map<int, std::shared_ptr<Table>> tables);
+		void writeEvents(std::unordered_map<int, std::shared_ptr<Event>> events);
+		void writeFacts(std::unordered_map<int, std::shared_ptr<Fact>> facts);
+		void writeRules(std::unordered_map<int, std::shared_ptr<Rule>> rules);
+		void writeCriteria(std::vector<std::shared_ptr<Criterion>> criteria);
+		void writeModifications(std::vector<std::shared_ptr<Modification>> modifications);
 		void writeIntArray(std::vector<int> arr);
 	public:
 		Serializer(const std::string filePath);
 		~Serializer();
-		void writeProject(Project* project);
+		void writeProject(std::shared_ptr<Project> project);
 	};
 }

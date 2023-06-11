@@ -30,7 +30,7 @@ void Rule::setTriggers(std::vector<int> triggers, ArrayOperator operation)
 		std::cout << "error at Rule::setTriggers\n";
 }
 
-void Rule::setCriteria(std::vector<Criterion*> criteria, ArrayOperator operation)
+void Rule::setCriteria(std::vector<std::shared_ptr<Criterion>> criteria, ArrayOperator operation)
 {
 	if (operation == ArrayOperator::SET)
 		this->criteria = criteria;
@@ -40,7 +40,7 @@ void Rule::setCriteria(std::vector<Criterion*> criteria, ArrayOperator operation
 		std::cout << "error at Rule::setCriteria\n";
 }
 
-void Rule::setModifications(std::vector<Modification*> modifications, ArrayOperator operation)
+void Rule::setModifications(std::vector<std::shared_ptr<Modification>> modifications, ArrayOperator operation)
 {
 	if (operation == ArrayOperator::SET)
 		this->modifications = modifications;
@@ -50,36 +50,36 @@ void Rule::setModifications(std::vector<Modification*> modifications, ArrayOpera
 		std::cout << "error at Rule::setModifications\n";
 }
 
-void Table::setEvents(std::vector<Event*> events, ArrayOperator operation)
+void Table::setEvents(std::vector<std::shared_ptr<Event>> events, ArrayOperator operation)
 {
 	if (operation == ArrayOperator::SET)
 		this->events.clear();
 
-	for (Event* i : events)
+	for (std::shared_ptr<Event> i : events)
 		this->events.insert({ i->id, i });
 
 	if (operation != ArrayOperator::SET and operation != ArrayOperator::ADD)
 		std::cout << "error at Table::setEvents\n";
 }
 
-void Table::setFacts(std::vector<Fact*> facts, ArrayOperator operation)
+void Table::setFacts(std::vector<std::shared_ptr<Fact>> facts, ArrayOperator operation)
 {
 	if (operation == ArrayOperator::SET)
 		this->facts.clear();
 
-	for (Fact* i : facts)
+	for (std::shared_ptr<Fact> i : facts)
 		this->facts.insert({ i->id, i });
 
 	if (operation != ArrayOperator::SET and operation != ArrayOperator::ADD)
 		std::cout << "error at Table::setFacts\n";
 }
 
-void Table::setRules(std::vector<Rule*> rules, ArrayOperator operation)
+void Table::setRules(std::vector<std::shared_ptr<Rule>> rules, ArrayOperator operation)
 {
 	if (operation == ArrayOperator::SET)
 		this->rules.clear();
 
-	for (Rule* i : rules)
+	for (std::shared_ptr<Rule> i : rules)
 		this->rules.insert({ i->id, i });
 
 	if (operation != ArrayOperator::SET and operation != ArrayOperator::ADD)
@@ -337,10 +337,10 @@ std::vector<int> Deserializer::parseIntArray()
 	return arr;
 }
 
-std::vector<Criterion*> Deserializer::parseCriteria()
+std::vector<std::shared_ptr<Criterion>> Deserializer::parseCriteria()
 {
 	this->read = 0;
-	std::vector<Criterion*> criteria;
+	std::vector<std::shared_ptr<Criterion>> criteria;
 	int nestingIndex = 1;
 
 	while (this->read != '[')
@@ -369,7 +369,7 @@ std::vector<Criterion*> Deserializer::parseCriteria()
 		{
 		case Keys::COMPARED_ENTRY:
 		{
-			criteria.push_back(new Criterion());
+			criteria.push_back(std::make_shared<Criterion>());
 			criteria.back()->entryID = this->getNextInteger();
 			break;
 		}
@@ -390,10 +390,10 @@ std::vector<Criterion*> Deserializer::parseCriteria()
 	return criteria;
 }
 
-std::vector<Modification*> Deserializer::parseModifications()
+std::vector<std::shared_ptr<Modification>> Deserializer::parseModifications()
 {
 	this->read = 0;
-	std::vector<Modification*> modifications;
+	std::vector<std::shared_ptr<Modification>> modifications;
 	int nestingIndex = 1;
 
 	while (this->read != '[')
@@ -422,7 +422,7 @@ std::vector<Modification*> Deserializer::parseModifications()
 		{
 		case Keys::MODIFIED_ENTRY:
 		{
-			modifications.push_back(new Modification());
+			modifications.push_back(std::make_shared<Modification>());
 			modifications.back()->entryID = this->getNextInteger();
 			break;
 		}
@@ -443,10 +443,10 @@ std::vector<Modification*> Deserializer::parseModifications()
 	return modifications;
 }
 
-std::unordered_map<int, Event*> Deserializer::parseEvents()
+std::unordered_map<int, std::shared_ptr<Event>> Deserializer::parseEvents()
 {
 	this->read = 0;
-	std::unordered_map<int, Event*> events;
+	std::unordered_map<int, std::shared_ptr<Event>> events;
 	int currentEventID = 0;
 	int nestingIndex = 1;
 
@@ -479,7 +479,7 @@ std::unordered_map<int, Event*> Deserializer::parseEvents()
 		case Keys::ID:
 		{
 			currentEventID = this->getNextInteger();
-			events.insert({ currentEventID, new Event() });
+			events.insert({ currentEventID, std::make_shared<Event>() });
 			events[currentEventID]->id = currentEventID;
 			break;
 		}
@@ -500,10 +500,10 @@ std::unordered_map<int, Event*> Deserializer::parseEvents()
 	return events;
 }
 
-std::unordered_map<int, Fact*> Deserializer::parseFacts()
+std::unordered_map<int, std::shared_ptr<Fact>> Deserializer::parseFacts()
 {
 	this->read = 0;
-	std::unordered_map<int, Fact*> facts;
+	std::unordered_map<int, std::shared_ptr<Fact>> facts;
 	int currentFactID = 0;
 	int nestingIndex = 1;
 
@@ -536,7 +536,7 @@ std::unordered_map<int, Fact*> Deserializer::parseFacts()
 		case Keys::ID: // start of new fact
 		{
 			currentFactID = this->getNextInteger();
-			facts.insert({ currentFactID, new Fact() });
+			facts.insert({ currentFactID, std::make_shared<Fact>() });
 			facts[currentFactID]->id = currentFactID;
 			break;
 		}
@@ -557,10 +557,10 @@ std::unordered_map<int, Fact*> Deserializer::parseFacts()
 	return facts;
 }
 
-std::unordered_map<int, Rule*> Deserializer::parseRules()
+std::unordered_map<int, std::shared_ptr<Rule>> Deserializer::parseRules()
 {
 	this->read = 0;
-	std::unordered_map<int, Rule*> rules;
+	std::unordered_map<int, std::shared_ptr<Rule>> rules;
 	int currentRuleID = 0;
 	int nestingIndex = 1;
 
@@ -593,7 +593,7 @@ std::unordered_map<int, Rule*> Deserializer::parseRules()
 		case Keys::ID: // start of new rule
 		{
 			currentRuleID = this->getNextInteger();
-			rules.insert({ currentRuleID, new Rule() });
+			rules.insert({ currentRuleID, std::make_shared<Rule>() });
 			rules[currentRuleID]->id = currentRuleID;
 			break;
 		}
@@ -634,10 +634,10 @@ std::unordered_map<int, Rule*> Deserializer::parseRules()
 	return rules;
 }
 
-std::unordered_map<int, Table*> Deserializer::parseTables()
+std::unordered_map<int, std::shared_ptr<Table>> Deserializer::parseTables()
 {
 	this->read = 0;
-	std::unordered_map<int, Table*> tables;
+	std::unordered_map<int, std::shared_ptr<Table>> tables;
 	int currentTableID = 0;
 	int nestingIndex = 1;
 
@@ -670,7 +670,7 @@ std::unordered_map<int, Table*> Deserializer::parseTables()
 		case Keys::ID:
 		{
 			currentTableID = this->getNextInteger();
-			tables.insert({ currentTableID, new Table() });
+			tables.insert({ currentTableID, std::make_shared<Table>() });
 			tables[currentTableID]->id = currentTableID;
 			break;
 		}
@@ -701,9 +701,9 @@ std::unordered_map<int, Table*> Deserializer::parseTables()
 	return tables;
 }
 
-Project* Deserializer::parseProject()
+std::shared_ptr<Project> Deserializer::parseProject()
 {
-	Project* project = new Project();
+	std::shared_ptr<Project> project = std::make_shared<Project>();
 
 	while (this->fileInput.get(this->read))
 	{
@@ -797,11 +797,11 @@ void Serializer::writeIntArray(std::vector<int> arr)
 	}
 }
 
-void Serializer::writeCriteria(std::vector<Criterion*> criteria)
+void Serializer::writeCriteria(std::vector<std::shared_ptr<Criterion>> criteria)
 {
 	int objCount = (int)criteria.size(), objIndex = 0;
 
-	for (Criterion* i : criteria)
+	for (std::shared_ptr<Criterion> i : criteria)
 	{
 		++objIndex;
 		this->startObject();
@@ -814,11 +814,11 @@ void Serializer::writeCriteria(std::vector<Criterion*> criteria)
 	}
 }
 
-void Serializer::writeModifications(std::vector<Modification*> modifications)
+void Serializer::writeModifications(std::vector<std::shared_ptr<Modification>> modifications)
 {
 	int objCount = (int)modifications.size(), objIndex = 0;
 
-	for (Modification* i : modifications)
+	for (std::shared_ptr<Modification> i : modifications)
 	{
 		++objIndex;
 		this->startObject();
@@ -831,11 +831,11 @@ void Serializer::writeModifications(std::vector<Modification*> modifications)
 	}
 }
 
-void Serializer::writeEvents(std::unordered_map<int, Event*> events)
+void Serializer::writeEvents(std::unordered_map<int, std::shared_ptr<Event>> events)
 {
 	int objCount = (int)events.size(), objIndex = 0;
 
-	for (std::pair<int, Event*> event : events)
+	for (std::pair<int, std::shared_ptr<Event>> event : events)
 	{
 		++objIndex;
 		this->startObject();
@@ -848,11 +848,11 @@ void Serializer::writeEvents(std::unordered_map<int, Event*> events)
 	}
 }
 
-void Serializer::writeFacts(std::unordered_map<int, Fact*> facts)
+void Serializer::writeFacts(std::unordered_map<int, std::shared_ptr<Fact>> facts)
 {
 	int objCount = (int)facts.size(), objIndex = 0;
 
-	for (std::pair<int, Fact*> fact : facts)
+	for (std::pair<int, std::shared_ptr<Fact>> fact : facts)
 	{
 		++objIndex;
 		this->startObject();
@@ -865,11 +865,11 @@ void Serializer::writeFacts(std::unordered_map<int, Fact*> facts)
 	}
 }
 
-void Serializer::writeRules(std::unordered_map<int, Rule*> rules)
+void Serializer::writeRules(std::unordered_map<int, std::shared_ptr<Rule>> rules)
 {
 	int objCount = (int)rules.size(), objIndex = 0;
 
-	for (std::pair<int, Rule*> rule : rules)
+	for (std::pair<int, std::shared_ptr<Rule>> rule : rules)
 	{
 		++objIndex;
 		this->startObject();
@@ -899,11 +899,11 @@ void Serializer::writeRules(std::unordered_map<int, Rule*> rules)
 	}
 }
 
-void Serializer::writeTables(std::unordered_map<int, Table*> tables)
+void Serializer::writeTables(std::unordered_map<int, std::shared_ptr<Table>> tables)
 {
 	int objCount = (int)tables.size(), objIndex = 0;
 
-	for (std::pair<int, Table*> table : tables)
+	for (std::pair<int, std::shared_ptr<Table>> table : tables)
 	{
 		++objIndex;
 		this->startObject();
@@ -927,7 +927,7 @@ void Serializer::writeTables(std::unordered_map<int, Table*> tables)
 	}
 }
 
-void Serializer::writeProject(Project* project)
+void Serializer::writeProject(std::shared_ptr<Project> project)
 {
 	this->fileOutput << "{\n";
 	++this->globalNestingLevel;
