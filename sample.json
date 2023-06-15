@@ -10,19 +10,19 @@
 				{
 					"id": 1,
 					"key": "MyEvent",
-					"value": 27
+					"value": 6
 				},
 				{
 					"id": 2,
 					"key": "MySecondEvent",
-					"value": 0
+					"value": 7
 				}
 			],
 			"facts": [
 				{
 					"id": 3,
 					"key": "MyFact",
-					"value": 0
+					"value": 22
 				},
 				{
 					"id": 4,

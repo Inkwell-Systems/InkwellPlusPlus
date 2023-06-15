@@ -8,7 +8,8 @@
 #include <memory>
 
 /*
-IMPORTANT: Watch out for memory leaks! The deserializer allocates memory for the project, tables, events, facts, rules, criteria, and modifications.
+Important future ideas:
+Sugar-coat the user syntax a bit
 */
 
 namespace inkwell
@@ -50,7 +51,7 @@ namespace inkwell
 		MODIFIED_ENTRY,
 		MODIFICATION_OPERATOR,
 		MODIFICATION_OPERATOR_SET,
-		MODIFICATION_OPERATOR_INCREMENT,
+		MODIFICATION_OPERATOR_ADD,
 		MODIFY_WITH_VALUE
 	};
 
@@ -69,49 +70,51 @@ namespace inkwell
 		int id = 0;
 		std::string key = "";
 		int value = 0;
-	};
-
-	class Event : public Entry
-	{
-
+		virtual void trigger() {};
 	};
 
 	class Fact : public Entry
 	{
-		
+	public:
 	};
 
 	class Criterion
 	{
 	public:
-		std::shared_ptr<Entry> comparedEntry = 0;
-		int entryID = 0;
+		std::shared_ptr<Entry> comparedEntry = nullptr;
 		int compareValue = 0;
 		Keys comparisonOperator = Keys::NULL_KEY;
+		bool check();
 	};
 
 	class Modification
 	{
 	public:
-		std::shared_ptr <Entry> modifiedEntry = 0;
-		int entryID = 0;
+		std::shared_ptr<Entry> modifiedEntry = nullptr;
 		Keys modificationOperator = Keys::NULL_KEY;
 		int modifyWithValue = 0;
+		void modify();
 	};
 
 	class Rule : public Entry
 	{
 	public:
-		std::vector<int> triggeredBy;
-		std::vector<int> triggers;
+		std::vector<std::shared_ptr<Entry>> triggers;
 		std::vector<std::shared_ptr<Criterion>> criteria;
 		std::vector<std::shared_ptr<Modification>> modifications;
 		std::vector<void(*)()> callbacks;
-		void setTriggeredBy(std::vector<int> triggeredBy, ArrayOperator operation);
-		void setTriggers(std::vector<int> triggers, ArrayOperator operation);
+		void setTriggers(std::vector<std::shared_ptr<Entry>> triggers, ArrayOperator operation);
 		void setCriteria(std::vector<std::shared_ptr<Criterion>> criteria, ArrayOperator operation);
 		void setModifications(std::vector<std::shared_ptr<Modification>> modifications, ArrayOperator operation);
-		void dispatchCallbacks();
+		void trigger() override;
+	};
+
+	class Event : public Entry
+	{
+	public:
+		std::vector<std::shared_ptr<Rule>> triggers;
+		void setTriggers(std::vector<std::shared_ptr<Rule>> triggers, ArrayOperator operation);
+		void trigger() override;
 	};
 
 	class Table
@@ -125,6 +128,8 @@ namespace inkwell
 		void setEvents(std::vector<std::shared_ptr<Event>> events, ArrayOperator operation);
 		void setFacts(std::vector<std::shared_ptr<Fact>> facts, ArrayOperator operation);
 		void setRules(std::vector<std::shared_ptr<Rule>> rules, ArrayOperator operation);
+		std::shared_ptr<Entry> getEntry(int id);
+		//Table(std::ifstream fileInput);
 	};
 
 	class Project
@@ -134,6 +139,7 @@ namespace inkwell
 		std::string description = "";
 		int createdAtNano = 0;
 		std::unordered_map<int, std::shared_ptr<Table>> tables;
+		//Project(std::string filePath);
 	};
 
 	class Deserializer
@@ -144,9 +150,9 @@ namespace inkwell
 		std::unordered_map<int, std::shared_ptr<Table>> parseTables();
 		std::unordered_map<int, std::shared_ptr<Event>> parseEvents();
 		std::unordered_map<int, std::shared_ptr<Fact>> parseFacts();
-		std::unordered_map<int, std::shared_ptr<Rule>> parseRules();
-		std::vector<std::shared_ptr<Criterion>> parseCriteria();
-		std::vector<std::shared_ptr<Modification>> parseModifications();
+		std::unordered_map<int, std::shared_ptr<Rule>> parseRules(std::shared_ptr<Table> currentTable);
+		std::vector<std::shared_ptr<Criterion>> parseCriteria(std::shared_ptr<Table> currentTable);
+		std::vector<std::shared_ptr<Modification>> parseModifications(std::shared_ptr<Table> currentTable);
 		std::vector<int> parseIntArray();
 		Keys getNextKey();
 		std::string getNextString();
@@ -170,7 +176,8 @@ namespace inkwell
 		void writeTables(std::unordered_map<int, std::shared_ptr<Table>> tables);
 		void writeEvents(std::unordered_map<int, std::shared_ptr<Event>> events);
 		void writeFacts(std::unordered_map<int, std::shared_ptr<Fact>> facts);
-		void writeRules(std::unordered_map<int, std::shared_ptr<Rule>> rules);
+		void writeRules(std::unordered_map<int, std::shared_ptr<Rule>> rules, std::shared_ptr<Table> currentTable);
+		void writeObjArrayID(std::vector<std::shared_ptr<Entry>> triggers);
 		void writeCriteria(std::vector<std::shared_ptr<Criterion>> criteria);
 		void writeModifications(std::vector<std::shared_ptr<Modification>> modifications);
 		void writeIntArray(std::vector<int> arr);

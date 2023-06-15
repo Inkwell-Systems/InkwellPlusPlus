@@ -2,25 +2,91 @@
 
 using namespace inkwell;
 
-void Rule::dispatchCallbacks()
+void Event::trigger()
 {
-	for(auto i : this->callbacks)
+	for (std::shared_ptr<Rule> i : this->triggers)
+	{
+		i->trigger();
+	}
+}
+
+void Rule::trigger()
+{
+	for(std::shared_ptr<Criterion> i : this->criteria) // Checks all criteria
+	{
+		if (!i->check())
+			return;
+	}
+
+	for (std::shared_ptr<Modification> i : this->modifications) // Does all modifications
+	{
+		i->modify();
+	}
+
+	for(void(*i)() : this->callbacks) // Dispatches all callbacks
+	{
 		i();
+	}
+
+	for (std::shared_ptr<Entry> i : this->triggers) // Triggers all entries
+	{
+		i->trigger();
+	}
+	
+	++this->value;
+}
+
+bool Criterion::check()
+{
+	switch (this->comparisonOperator)
+	{
+		case Keys::COMPARISON_OPERATOR_EQUAL: return (this->comparedEntry->value == this->compareValue);
+		case Keys::COMPARISON_OPERATOR_NOT_EQUAL: return (this->comparedEntry->value != this->compareValue);
+		case Keys::COMPARISON_OPERATOR_GREATER_THAN: return (this->comparedEntry->value > this->compareValue);
+		case Keys::COMPARISON_OPERATOR_GREATER_THAN_OR_EQUAL: return (this->comparedEntry->value >= this->compareValue);
+		case Keys::COMPARISON_OPERATOR_LESS_THAN: return (this->comparedEntry->value < this->compareValue);
+		case Keys::COMPARISON_OPERATOR_LESS_THAN_OR_EQUAL: return (this->comparedEntry->value <= this->compareValue);
+		default: std::cout << "error at Criterion::check\n";
+	}
+	return 0;
+}
+
+void Modification::modify()
+{
+	switch (this->modificationOperator)
+	{
+		case Keys::MODIFICATION_OPERATOR_SET: this->modifiedEntry->value = this->modifyWithValue; break;
+		case Keys::MODIFICATION_OPERATOR_ADD: this->modifiedEntry->value += this->modifyWithValue; break;
+		default: std::cout << "error at Modification::modify\n";
+	}
+}
+
+std::shared_ptr<Entry> Table::getEntry(int id)
+{
+	if (this->events.count(id) == 1)
+		return this->events[id];
+	else if (this->facts.count(id) == 1)
+		return this->facts[id];
+	else if (this->rules.count(id) == 1)
+		return this->rules[id];
+	else
+		std::cout << "error at Table::getEntry\n";
+	return std::shared_ptr<Entry>();
 }
 
 // GETTERS AND SETTERS
 
-void Rule::setTriggeredBy(std::vector<int> triggeredBy, ArrayOperator operation)
+void Event::setTriggers(std::vector<std::shared_ptr<Rule>> triggers, ArrayOperator operation)
 {
 	if (operation == ArrayOperator::SET)
-		this->triggeredBy = triggeredBy;
+		this->triggers = triggers;
 	else if (operation == ArrayOperator::ADD)
-		this->triggeredBy.insert(this->triggeredBy.end(), triggeredBy.begin(), triggeredBy.end());
+		this->triggers.insert(this->triggers.end(), triggers.begin(), triggers.end());
 	else
-		std::cout << "error at Rule::setTriggeredBy\n";
+		std::cout << "error at Event::setTriggers\n";
 }
 
-void Rule::setTriggers(std::vector<int> triggers, ArrayOperator operation)
+void Rule::setTriggers(std::vector<std::shared_ptr<Entry>> triggers, ArrayOperator operation)
 {
 	if (operation == ArrayOperator::SET)
 		this->triggers = triggers;
@@ -144,8 +210,8 @@ Keys EnumConverter::toKey(std::string key)
 		return Keys::MODIFICATION_OPERATOR;
 	else if (key == "set")
 		return Keys::MODIFICATION_OPERATOR_SET;
-	else if (key == "increment")
-		return Keys::MODIFICATION_OPERATOR_INCREMENT;
+	else if (key == "add")
+		return Keys::MODIFICATION_OPERATOR_ADD;
 	else if (key == "modifyWithValue")
 		return Keys::MODIFY_WITH_VALUE;
 
@@ -218,8 +284,8 @@ std::string EnumConverter::toString(Keys k)
 		return "modificationOperator";
 	else if(k == Keys::MODIFICATION_OPERATOR_SET)
 		return "set";
-	else if(k == Keys::MODIFICATION_OPERATOR_INCREMENT)
-		return "increment";
+	else if(k == Keys::MODIFICATION_OPERATOR_ADD)
+		return "add";
 	else if(k == Keys::MODIFY_WITH_VALUE)
 		return "modifyWithValue";
 
@@ -337,7 +403,7 @@ std::vector<int> Deserializer::parseIntArray()
 	return arr;
 }
 
-std::vector<std::shared_ptr<Criterion>> Deserializer::parseCriteria()
+std::vector<std::shared_ptr<Criterion>> Deserializer::parseCriteria(std::shared_ptr<Table> currentTable)
 {
 	this->read = 0;
 	std::vector<std::shared_ptr<Criterion>> criteria;
@@ -370,7 +436,7 @@ std::vector<std::shared_ptr<Criterion>> Deserializer::parseCriteria()
 		case Keys::COMPARED_ENTRY:
 		{
 			criteria.push_back(std::make_shared<Criterion>());
-			criteria.back()->entryID = this->getNextInteger();
+			criteria.back()->comparedEntry = currentTable->getEntry(this->getNextInteger());
 			break;
 		}
 		case Keys::COMPARE_VALUE:
@@ -390,7 +456,7 @@ std::vector<std::shared_ptr<Criterion>> Deserializer::parseCriteria()
 	return criteria;
 }
 
-std::vector<std::shared_ptr<Modification>> Deserializer::parseModifications()
+std::vector<std::shared_ptr<Modification>> Deserializer::parseModifications(std::shared_ptr<Table> currentTable)
 {
 	this->read = 0;
 	std::vector<std::shared_ptr<Modification>> modifications;
@@ -423,7 +489,7 @@ std::vector<std::shared_ptr<Modification>> Deserializer::parseModifications()
 		case Keys::MODIFIED_ENTRY:
 		{
 			modifications.push_back(std::make_shared<Modification>());
-			modifications.back()->entryID = this->getNextInteger();
+			modifications.back()->modifiedEntry = currentTable->getEntry(this->getNextInteger());
 			break;
 		}
 		case Keys::MODIFICATION_OPERATOR:
@@ -557,12 +623,13 @@ std::unordered_map<int, std::shared_ptr<Fact>> Deserializer::parseFacts()
 	return facts;
 }
 
-std::unordered_map<int, std::shared_ptr<Rule>> Deserializer::parseRules()
+std::unordered_map<int, std::shared_ptr<Rule>> Deserializer::parseRules(std::shared_ptr<Table> currentTable)
 {
 	this->read = 0;
 	std::unordered_map<int, std::shared_ptr<Rule>> rules;
 	int currentRuleID = 0;
 	int nestingIndex = 1;
+	std::vector<int> v;
 
 	while (this->read != '[')
 	{
@@ -604,22 +671,30 @@ std::unordered_map<int, std::shared_ptr<Rule>> Deserializer::parseRules()
 		}
 		case Keys::RULE_TRIGGERED_BY:
 		{
-			rules[currentRuleID]->triggeredBy = this->parseIntArray();
+			v = this->parseIntArray();
+			for (int i : v)
+			{
+				currentTable->events[i]->triggers.push_back(rules[currentRuleID]);
+			}
 			break;
 		}
 		case Keys::RULE_TRIGGERS:
 		{
-			rules[currentRuleID]->triggers = this->parseIntArray();
+			v = this->parseIntArray();
+			for (int i : v)
+			{
+				rules[currentRuleID]->triggers.push_back(currentTable->getEntry(i));
+			}
 			break;
 		}
 		case Keys::RULE_CRITERIA: 
 		{
-			rules[currentRuleID]->criteria = this->parseCriteria();
+			rules[currentRuleID]->criteria = this->parseCriteria(currentTable);
 			break;
 		}
 		case Keys::RULE_MODIFICATIONS:
 		{
-			rules[currentRuleID]->modifications = this->parseModifications();
+			rules[currentRuleID]->modifications = this->parseModifications(currentTable);
 			break;
 		}
 		case Keys::VALUE:
@@ -691,7 +766,7 @@ std::unordered_map<int, std::shared_ptr<Table>> Deserializer::parseTables()
 		}
 		case Keys::RULES:
 		{
-			tables[currentTableID]->rules = this->parseRules();
+			tables[currentTableID]->rules = this->parseRules(tables[currentTableID]);
 			break;
 		}
 		default: std::cout << "Invalid key at table!\n";
@@ -797,6 +872,21 @@ void Serializer::writeIntArray(std::vector<int> arr)
 	}
 }
 
+void Serializer::writeObjArrayID(std::vector<std::shared_ptr<Entry>> triggers)
+{
+	int objCount = (int)triggers.size(), objIndex = 0;
+
+	for (std::shared_ptr<Entry> i : triggers)
+	{
+		++objIndex;
+		
+		if(objIndex == objCount)
+			this->fileOutput << " " << i->id << " ";
+		else
+			this->fileOutput << " " << i->id << ",";
+	}
+}
+
 void Serializer::writeCriteria(std::vector<std::shared_ptr<Criterion>> criteria)
 {
 	int objCount = (int)criteria.size(), objIndex = 0;
@@ -806,7 +896,7 @@ void Serializer::writeCriteria(std::vector<std::shared_ptr<Criterion>> criteria)
 		++objIndex;
 		this->startObject();
 		
-		this->format(); this->fileOutput << "\"comparedEntry\": " << i->entryID << ",\n";
+		this->format(); this->fileOutput << "\"comparedEntry\": " << i->comparedEntry->id << ",\n";
 		this->format(); this->fileOutput << "\"compareValue\": " << i->compareValue << ",\n";
 		this->format(); this->fileOutput << "\"comparisonOperator\": \"" << EnumConverter::toString(i->comparisonOperator) << "\"\n";
 
@@ -823,7 +913,7 @@ void Serializer::writeModifications(std::vector<std::shared_ptr<Modification>> m
 		++objIndex;
 		this->startObject();
 
-		this->format(); this->fileOutput << "\"modifiedEntry\": " << i->entryID << ",\n";
+		this->format(); this->fileOutput << "\"modifiedEntry\": " << i->modifiedEntry->id << ",\n";
 		this->format(); this->fileOutput << "\"modificationOperator\": \"" << EnumConverter::toString(i->modificationOperator) << "\",\n";
 		this->format(); this->fileOutput << "\"modifyWithValue\": " << i->modifyWithValue << "\n";
 
@@ -865,12 +955,13 @@ void Serializer::writeFacts(std::unordered_map<int, std::shared_ptr<Fact>> facts
 	}
 }
 
-void Serializer::writeRules(std::unordered_map<int, std::shared_ptr<Rule>> rules)
+void Serializer::writeRules(std::unordered_map<int, std::shared_ptr<Rule>> rules, std::shared_ptr<Table> currentTable)
 {
 	int objCount = (int)rules.size(), objIndex = 0;
 
 	for (std::pair<int, std::shared_ptr<Rule>> rule : rules)
 	{
+		std::vector<int> v;
 		++objIndex;
 		this->startObject();
 		
@@ -878,11 +969,17 @@ void Serializer::writeRules(std::unordered_map<int, std::shared_ptr<Rule>> rules
 		this->format(); this->fileOutput << "\"key\": \"" << rule.second->key << "\",\n";
 
 		this->format(); this->fileOutput << "\"ruleTriggeredBy\": [";
-		writeIntArray(rule.second->triggeredBy);
+		for (auto i : currentTable->events)
+		{
+			for(std::shared_ptr<Rule> j : i.second->triggers)
+				if (j->id == rule.second->id)
+					v.push_back(i.second->id);
+		}
+		writeIntArray(v);
 		this->fileOutput << "],\n";
 
 		this->format(); this->fileOutput << "\"ruleTriggers\": [";
-		writeIntArray(rule.second->triggers);
+		writeObjArrayID(rule.second->triggers);
 		this->fileOutput << "],\n";
 
 		this->format(); this->fileOutput << "\"ruleCriteria\": [\n";
@@ -920,7 +1017,7 @@ void Serializer::writeTables(std::unordered_map<int, std::shared_ptr<Table>> tab
 		this->format(); this->fileOutput << "],\n";
 
 		this->format(); this->fileOutput << "\"rules\": [\n";
-		this->writeRules(table.second->rules);
+		this->writeRules(table.second->rules, table.second);
 		this->format(); this->fileOutput << "]\n";
 
 		this->endObject(objIndex == objCount);
