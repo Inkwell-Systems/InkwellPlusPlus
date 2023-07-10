@@ -37,7 +37,7 @@ The API uses shared pointers of these classes, which are defined as <class-name>
 # II. Deserialization
 
 The Deserializer class facilitates the parsing of an Inkwell JSON file.
-You may construct a Deserializer object with the path to the JSON as the constructor argument.
+A Deserializer object may be constructed with the path to the JSON as the constructor argument.
 
 ![image](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/5bed300a-07f1-4d83-a500-85a48bac6444)
 
@@ -96,6 +96,22 @@ Example of accessing a project's field:
 
 In this example, a callback (in the form of a lambda) is being added to a Rule named "myRule". 
 The rule is contained within the "myTable" table, and the "myTable" table is part of the project object.
+
+# IV. Triggering entries
+
+This diagram shows what happens when an event is triggered:
+
+![image](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/7977290b-04d8-48a3-9e94-d26e4347e0c2)
+
+Events and rules can be triggered. Facts do not have this functionality.
+
+# V. Serialization
+
+The Serializer object has the purpose of formatting the Project object and its contents into a JSON text file.
+A Serializer object may be constructed with the path to the output file as its argument.
+
+![image](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/21ef3ae3-90fa-45bf-a23c-71ffcc7c043e)
+
 
 
 
