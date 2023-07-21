@@ -8,6 +8,7 @@ In the future, custom entries should be introduced in the Inkwell interface.
 Also, scopes will be made functional.
 
 # 📃 Documentation. How to utilize the API
+The following section will introduce the basics regarding InkwellPlusPlus.
 
 ## 🏗️ I. Structure
 
