@@ -1,14 +1,14 @@
 ![inkwellBanner](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/1af85195-624d-4294-8182-dd2553df7e85)
 
-# State of the API
+# ⭐ State of the API
 The Inkwell API is in a functional state. It can parse, store, modify and write an Inkwell JSON.
 
-# Future plans
+# ⏭️ Future plans
 In the future, custom entries should be introduced in the Inkwell interface.
 
-# Documentation. How to utilize the API
+# 📃 Documentation. How to utilize the API
 
-## I. Structure
+## 🏗️ I. Structure
 
 The main unit of the Inkwell API is the ***Project,*** which stores ***Tables.***
 
@@ -18,7 +18,7 @@ The API uses ***shared_ptr's*** of these classes.
 
 ![image](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/a4acc71e-c8e1-433d-92a4-5d83e8b92d75)
 
-## II. Parsing / Deserializing the Inkwell file
+## 📚 II. Parsing / Deserializing the Inkwell file
 
 The file can be read from any type of input stream.
 
@@ -31,7 +31,7 @@ _(Note that the file extension is not relevant in the parsing of the Project.)_
 _The parsing of the JSON structure itself is done utilizing the following library:
 https://github.com/nlohmann/json_
 
-## III. Project, Table, Entry
+## 🌐 III. Project, Table, Entry
 
 ***The Project object contains the Tables*** within the Inkwell file, ***as well as any extra information*** included in the file.
 
@@ -39,7 +39,7 @@ A Table is a ***container that holds Entries.***
 
 An Entry represents a ***functional component of the API,*** which has its own value, trigger other entries or dispatch callbacks, depending on the Entry type.
 
-## IV. Triggering entries
+## 📞 IV. Triggering entries
 
 This diagram shows what happens when an event is triggered:
 
@@ -47,7 +47,7 @@ This diagram shows what happens when an event is triggered:
 
 _Events and rules can be triggered. Facts do not have this functionality._
 
-## V. Serialization
+## 📝 V. Serialization
 
 Serialization of the Project can be done ***via the << (insertion) operator.***
 
