@@ -25,23 +25,6 @@ namespace inkwell
 		std::unordered_map<std::string, std::shared_ptr<Fact>> facts;
 		std::unordered_map<std::string, std::shared_ptr<Rule>> rules;
 
-		std::shared_ptr<Entry> getEntry(std::string key)
-		{
-			if (this->events.contains(key))
-				return this->events[key];
-			else if (this->facts.contains(key))
-				return this->facts[key];
-			else if (this->rules.contains(key))
-				return this->rules[key];
-
-			Error::throwException(
-				std::format(
-					"No entry with the key \"{}\" was found!\n",
-					key
-				)
-			);
-		}
-
 		std::shared_ptr<Entry> getEntry(int id)
 		{
 			if (!idToKey.contains(id))
@@ -69,6 +52,27 @@ namespace inkwell
 					id
 				)
 			);
+
+			return nullptr;
+		}
+
+		std::shared_ptr<Entry> getEntry(std::string key)
+		{
+			if (this->events.contains(key))
+				return this->events[key];
+			else if (this->facts.contains(key))
+				return this->facts[key];
+			else if (this->rules.contains(key))
+				return this->rules[key];
+
+			Error::throwException(
+				std::format(
+					"No entry with the key \"{}\" was found!\n",
+					key
+				)
+			);
+
+			return nullptr;
 		}
 
 		void addEvent(std::shared_ptr<Event> _event)
@@ -154,19 +158,141 @@ namespace inkwell
 			this->initialized = true;
 		}
 
-		bool isInitialized() const
+		int ID() const
+		{
+			return this->id;
+		}
+
+		std::string KEY() const
+		{
+			return this->key;
+		}
+
+		std::shared_ptr<Scope> SC() const
+		{
+			return this->scope;
+		}
+
+		bool INIT() const
 		{
 			return this->initialized;
 		}
 
-		std::shared_ptr<Entry> at(std::string key)
+		std::shared_ptr<Event> E(int id)
 		{
-			return this->getEntry(key);
+			if (!idToKey.contains(id))
+			{
+				Error::throwException(
+					std::format(
+						"A Table with the ID {} does not exist!\n",
+						id
+					)
+				);
+			}
+
+			if (!events.contains(idToKey[id]))
+			{
+				Error::throwException(
+					std::format(
+						"A Table with the key \"{}\" does not exist!\n",
+						idToKey[id]
+					)
+				);
+			};
+
+			return events[idToKey[id]];
+		}
+		std::shared_ptr<Event> E(std::string key)
+		{
+			if (!events.contains(key))
+			{
+				Error::throwException(
+					std::format(
+						"A Table with the key \"{}\" does not exist!\n",
+						key
+					)
+				);
+			};
+
+			return events[key];
 		}
 
-		std::shared_ptr<Entry> at(int id)
+		std::shared_ptr<Fact> F(int id)
 		{
-			return this->getEntry(id);
+			if (!idToKey.contains(id))
+			{
+				Error::throwException(
+					std::format(
+						"A Table with the ID {} does not exist!\n",
+						id
+					)
+				);
+			}
+
+			if (!facts.contains(idToKey[id]))
+			{
+				Error::throwException(
+					std::format(
+						"A Table with the key \"{}\" does not exist!\n",
+						idToKey[id]
+					)
+				);
+			};
+
+			return facts[idToKey[id]];
+		}
+		std::shared_ptr<Fact> F(std::string key)
+		{
+			if (!facts.contains(key))
+			{
+				Error::throwException(
+					std::format(
+						"A Table with the key \"{}\" does not exist!\n",
+						key
+					)
+				);
+			};
+
+			return facts[key];
+		}
+
+		std::shared_ptr<Rule> R(int id)
+		{
+			if (!idToKey.contains(id))
+			{
+				Error::throwException(
+					std::format(
+						"A Table with the ID {} does not exist!\n",
+						id
+					)
+				);
+			}
+
+			if (!rules.contains(idToKey[id]))
+			{
+				Error::throwException(
+					std::format(
+						"A Table with the key \"{}\" does not exist!\n",
+						idToKey[id]
+					)
+				);
+			};
+
+			return rules[idToKey[id]];
+		}
+		std::shared_ptr<Rule> R(std::string key)
+		{
+			if (!rules.contains(key))
+			{
+				Error::throwException(
+					std::format(
+						"A Table with the key \"{}\" does not exist!\n",
+						key
+					)
+				);
+			};
+
+			return rules[key];
 		}
 
 		friend class Project;

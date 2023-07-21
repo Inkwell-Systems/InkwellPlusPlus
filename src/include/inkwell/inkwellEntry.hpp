@@ -22,47 +22,31 @@ namespace inkwell
 
 		int id = NULL;
 		std::string key = "";
-		Scope scope;
 		int guard = 0;
 
 	public:
 		double value = 0;
 
-		virtual void trigger() = 0;
+		virtual bool trigger() = 0;
 
-		int getID() const
+		int ID() const
 		{
 			return this->id;
 		}
 
-		std::string getKey() const
+		std::string KEY() const
 		{
 			return this->key;
 		}
 
-		Scope getScope() const
-		{
-			return this->scope;
-		}
-
-		int getGuard() const
+		int GRD() const
 		{
 			return this->guard;
 		}
 
-		bool isInitialized() const
+		bool INIT() const
 		{
 			return this->initialized;
-		}
-
-		bool operator==(const Entry& rhs) const
-		{
-			return this->key == rhs.key;
-		}
-
-		bool operator!=(const Entry& rhs) const
-		{
-			return this->key != rhs.key;
 		}
 
 		friend class Project;
@@ -137,25 +121,9 @@ namespace inkwell
 			return 0;
 		}
 
-		bool isInitialized() const
+		bool INIT() const
 		{
 			return this->initialized;
-		}
-
-		bool operator==(const Criterion& rhs) const
-		{
-			return
-				this->comparedEntry == rhs.comparedEntry and
-				this->compareValue == rhs.compareValue and
-				this->comparisonOperator == rhs.comparisonOperator;
-		}
-
-		bool operator!=(const Criterion& rhs) const
-		{
-			return
-				this->comparedEntry != rhs.comparedEntry or
-				this->compareValue != rhs.compareValue or
-				this->comparisonOperator != rhs.comparisonOperator;
 		}
 
 		friend class Project;
@@ -210,20 +178,9 @@ namespace inkwell
 			this->initialized = true;
 		}
 
-		bool operator==(const Modification& rhs) const
+		bool INIT() const
 		{
-			return
-				this->modifiedEntry == rhs.modifiedEntry and
-				this->modificationOperator == rhs.modificationOperator and
-				this->modifyWithValue == rhs.modifyWithValue;
-		}
-
-		bool operator!=(const Modification& rhs) const
-		{
-			return
-				this->modifiedEntry != rhs.modifiedEntry or
-				this->modificationOperator != rhs.modificationOperator or
-				this->modifyWithValue != rhs.modifyWithValue;
+			return this->initialized;
 		}
 
 		void modify()
@@ -284,9 +241,10 @@ namespace inkwell
 			this->initialized = true;
 		}
 
-		void trigger() override
+		bool trigger() override
 		{
 			Error::throwException("Facts cannot be triggered!\n");
+			return false;
 		}
 
 		friend class Project;
@@ -339,12 +297,12 @@ namespace inkwell
 
 		std::vector<std::function<void()>> callbacks;
 
-		void trigger() override
+		bool trigger() override
 		{
 			for (auto& i : this->criteria)
 			{
 				if (!i->check())
-					return;
+					return false;
 			}
 
 			for (auto& i : this->modifications)
@@ -363,6 +321,7 @@ namespace inkwell
 			}
 
 			++this->value;
+			return true;
 		}
 
 		friend class Project;
@@ -411,47 +370,14 @@ namespace inkwell
 			this->initialized = true;
 		}
 
-		bool operator==(const Event& rhs) const
-		{
-			if(this->key != rhs.key)
-				return false;
-
-			if(this->triggers.size() != rhs.triggers.size())
-				return false;
-
-			for (auto& i : this->triggers)
-			{
-				if(rhs.triggers.find(i) == rhs.triggers.end())
-					return false;
-			}
-
-			return true;
-		}
-
-		bool operator!=(const Event& rhs) const
-		{
-			if(this->key != rhs.key)
-				return true;
-
-			if (this->triggers.size() != rhs.triggers.size())
-				return true;
-
-			for (auto& i : this->triggers)
-			{
-				if (rhs.triggers.find(i) == rhs.triggers.end())
-					return true;
-			}
-
-			return false;
-		}
-
-		void trigger() override {
+		bool trigger() override {
 
 			for (auto& i : this->triggers)
 			{
 				i->trigger();
 			}
 
+			return true;
 		}
 
 		friend class Project;

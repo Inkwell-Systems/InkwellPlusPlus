@@ -8,18 +8,22 @@
 
 namespace inkwell
 {
-	constexpr int PROJECTFLAG_NONE				= 0;
-	constexpr int PROJECTFLAG_NOCLOUD			= (1 << 0);
-	constexpr int PROJECTFLAG_NOENTRYMAP			= (1 << 1);
-	constexpr int PROJECTFLAG_NOINVITECODE			= (1 << 2);
-	constexpr int PROJECTFLAG_NOOWNER			= (1 << 3);
-	constexpr int PROJECTFLAG_NOBANNER			= (1 << 4);
-	constexpr int PROJECTFLAG_NOCREATEDAT			= (1 << 5);
-	constexpr int PROJECTFLAG_NODESCRIPTION			= (1 << 6);
-	constexpr int PROJECTFLAG_NOID				= (1 << 7);
-	constexpr int PROJECTFLAG_NONAME			= (1 << 8);
-	constexpr int PROJECTFLAG_NOMEMBERS			= (1 << 9);
-	constexpr int PROJECTFLAG_NOEXTRAINFO			= (1 << 10);
+	constexpr int PROJECTFLAG_NONE						= 0;			// No special flags
+	constexpr int PROJECTFLAG_NOCLOUD					= (1 << 0);		// Cloud field will not be read from input
+	constexpr int PROJECTFLAG_NOENTRYMAP				= (1 << 1);		// EntryMap field will not be read from input
+	constexpr int PROJECTFLAG_NOINVITECODE				= (1 << 2);		// InviteCode field will not be read from input
+	constexpr int PROJECTFLAG_NOOWNER					= (1 << 3);		// Owner field will not be read from input
+	constexpr int PROJECTFLAG_NOBANNER					= (1 << 4);		// ProjectBanner field will not be read from input
+	constexpr int PROJECTFLAG_NOCREATEDAT				= (1 << 5);		// ProjectCreatedAt field will not be read from input
+	constexpr int PROJECTFLAG_NODESCRIPTION				= (1 << 6);		// ProjectDescription field will not be read from input
+	constexpr int PROJECTFLAG_NOID						= (1 << 7);		// ProjectId field will not be read from input
+	constexpr int PROJECTFLAG_NONAME					= (1 << 8);		// ProjectName field will not be read from input
+	constexpr int PROJECTFLAG_NOMEMBERS					= (1 << 9);		// Members field will not be read from input
+	constexpr int PROJECTFLAG_NOEXTRAINFO				= (1 << 10);	// All of the above flags
+
+	//constexpr int PROJECTFLAG_NOEXCEPT_OUTPUT			= (1 << 11);	// No exceptions will be thrown by the project, but the error will be outputted to the console
+	//constexpr int PROJECTFLAG_NOEXCEPT				= (1 << 12);	// No exceptions will be thrown by the project and no error will be outputted to the console
+	//constexpr int PROJECTFLAG_FLUSH_UPON_EXCEPTION	= (1 << 13);	// Outputs the project to a 'projectFlush.json' file upon exception
 
 	class Project
 	{
@@ -40,11 +44,11 @@ namespace inkwell
 
 			if ((flags & PROJECTFLAG_NOCLOUD) == 0)			project->extraData["cloud"] = parsedJson.at("cloud");
 			if ((flags & PROJECTFLAG_NOENTRYMAP) == 0)		project->extraData["entryMap"] = parsedJson.at("entryMap");
-			if ((flags & PROJECTFLAG_NOINVITECODE) == 0)		project->extraData["inviteCode"] = parsedJson.at("inviteCode");
+			if ((flags & PROJECTFLAG_NOINVITECODE) == 0)	project->extraData["inviteCode"] = parsedJson.at("inviteCode");
 			if ((flags & PROJECTFLAG_NOOWNER) == 0)			project->extraData["owner"] = parsedJson.at("owner");
 			if ((flags & PROJECTFLAG_NOBANNER) == 0)		project->extraData["projectBanner"] = parsedJson.at("projectBanner");
 			if ((flags & PROJECTFLAG_NOCREATEDAT) == 0)		project->extraData["projectCreatedAt"] = parsedJson.at("projectCreatedAt");
-			if ((flags & PROJECTFLAG_NODESCRIPTION) == 0)		project->extraData["projectDescription"] = parsedJson.at("projectDescription");
+			if ((flags & PROJECTFLAG_NODESCRIPTION) == 0)	project->extraData["projectDescription"] = parsedJson.at("projectDescription");
 			if ((flags & PROJECTFLAG_NOID) == 0)			project->extraData["projectId"] = parsedJson.at("projectId");
 			if ((flags & PROJECTFLAG_NONAME) == 0)			project->extraData["projectName"] = parsedJson.at("projectName");
 			if ((flags & PROJECTFLAG_NOMEMBERS) == 0)		project->extraData["members"] = parsedJson.at("members");
@@ -272,11 +276,11 @@ namespace inkwell
 
 			if ((flags & PROJECTFLAG_NOCLOUD) == 0)			tab(fileOutput), fileOutput << "\"cloud\": " << project->extraData.at("cloud") << ",\n";
 			if ((flags & PROJECTFLAG_NOENTRYMAP) == 0)		tab(fileOutput), fileOutput << "\"entryMap\": " << project->extraData.at("entryMap") << ",\n";
-			if ((flags & PROJECTFLAG_NOINVITECODE) == 0)		tab(fileOutput), fileOutput << "\"inviteCode\": " << project->extraData.at("inviteCode") << ",\n";
+			if ((flags & PROJECTFLAG_NOINVITECODE) == 0)	tab(fileOutput), fileOutput << "\"inviteCode\": " << project->extraData.at("inviteCode") << ",\n";
 			if ((flags & PROJECTFLAG_NOOWNER) == 0)			tab(fileOutput), fileOutput << "\"owner\": " << project->extraData.at("owner") << ",\n";
 			if ((flags & PROJECTFLAG_NOBANNER) == 0)		tab(fileOutput), fileOutput << "\"projectBanner\": " << project->extraData.at("projectBanner") << ",\n";
 			if ((flags & PROJECTFLAG_NOCREATEDAT) == 0)		tab(fileOutput), fileOutput << "\"createdAt\": " << project->extraData.at("projectCreatedAt") << ",\n";
-			if ((flags & PROJECTFLAG_NODESCRIPTION) == 0)		tab(fileOutput), fileOutput << "\"projectDescription\": " << project->extraData.at("projectDescription") << ",\n";
+			if ((flags & PROJECTFLAG_NODESCRIPTION) == 0)	tab(fileOutput), fileOutput << "\"projectDescription\": " << project->extraData.at("projectDescription") << ",\n";
 			if ((flags & PROJECTFLAG_NOID) == 0)			tab(fileOutput), fileOutput << "\"projectId\": " << project->extraData.at("projectId") << ",\n";
 			if ((flags & PROJECTFLAG_NONAME) == 0)			tab(fileOutput), fileOutput << "\"projectName\": " << project->extraData.at("projectName") << ",\n";
 			if ((flags & PROJECTFLAG_NOMEMBERS) == 0)		tab(fileOutput), fileOutput << "\"members\": " << project->extraData.at("members") << ",\n";
@@ -573,13 +577,12 @@ namespace inkwell
 				Error::throwException(
 					std::format(
 						"This Project ({}) has already been initialized!\n",
-						(flags & PROJECTFLAG_NOID) == 0 ? (std::string)this->extraData.at("ProjectId") : "No ID included"
+						(this->flags & PROJECTFLAG_NOID) == 0 ? (std::string)this->extraData.at("ProjectId") : "No ID included"
 					)
 				);
 			}
 
 			this->flags = PROJECTFLAG_NONE;
-			this->initialized = true;
 		};
 
 		Project(int flagList)
@@ -589,13 +592,12 @@ namespace inkwell
 				Error::throwException(
 					std::format(
 						"This Project ({}) has already been initialized!\n",
-						(flags & PROJECTFLAG_NOID) == 0 ? (std::string)this->extraData.at("ProjectId") : "No ID included"
+						(this->flags & PROJECTFLAG_NOID) == 0 ? (std::string)this->extraData.at("ProjectId") : "No ID included"
 					)
 				);
 			}
 
 			this->flags = flagList;
-			this->initialized = true;
 		}
 
 		int getFlags() const
@@ -608,27 +610,12 @@ namespace inkwell
 			return this->extraData;
 		}
 
-		bool isInitialized() const
+		bool INIT() const
 		{
 			return this->initialized;
 		}
 
-		std::shared_ptr<Table> at(std::string key)
-		{
-			if (!tables.contains(key))
-			{
-				Error::throwException(
-					std::format(
-						"A Table with the key \"{}\" does not exist!\n",
-						key
-					)
-				);
-			};
-
-			return tables[key];
-		}
-
-		std::shared_ptr<Table> at(int id)
+		std::shared_ptr<Table> T(int id)
 		{
 			if (!idToKey.contains(id))
 			{
@@ -652,10 +639,35 @@ namespace inkwell
 
 			return tables[idToKey[id]];
 		}
+		std::shared_ptr<Table> T(std::string key)
+		{
+			if (!tables.contains(key))
+			{
+				Error::throwException(
+					std::format(
+						"A Table with the key \"{}\" does not exist!\n",
+						key
+					)
+				);
+			};
+
+			return tables[key];
+		}
 		
 		friend std::istream& operator>> (std::istream& is, std::shared_ptr<Project> project)
 		{
+			if (project->initialized)
+			{
+				Error::throwException(
+					std::format(
+						"This Project ({}) has already been initialized!\n",
+						(project->flags & PROJECTFLAG_NOID) == 0 ? (std::string)project->extraData.at("ProjectId") : "No ID included"
+					)
+				);
+			}
+
 			project->parseProject(project, is);
+			project->initialized = true;
 			return is;
 		}
 

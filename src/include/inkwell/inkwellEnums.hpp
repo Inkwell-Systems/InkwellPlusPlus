@@ -110,6 +110,8 @@ namespace inkwell
 					key
 				)
 			);
+
+			return Keys::NULL_KEY;
 		}
 
 		static std::string toString(Keys k)
@@ -176,6 +178,8 @@ namespace inkwell
 			Error::throwException(
 				"A Key is not recognized by the Enum Converter!\n"
 			);
+
+			return "nullKey";
 		}
 	};
 }
