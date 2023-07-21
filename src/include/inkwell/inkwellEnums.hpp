@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <format>
+#include "inkwellErrors.hpp"
 
 namespace inkwell
 {
@@ -102,8 +104,12 @@ namespace inkwell
 			else if (key == "modifyWithValue")
 				return Keys::MODIFY_WITH_VALUE;
 
-			std::string toThrow = "[EnumConverter::toKey] String " + key + " is not recognized!\n";
-			throw std::exception(toThrow.c_str());
+			Error::throwException(
+				std::format(
+					"String \"{}\" is not recognized by the Enum Converter!\n", 
+					key
+				)
+			);
 		}
 
 		static std::string toString(Keys k)
@@ -167,7 +173,9 @@ namespace inkwell
 			else if (k == Keys::MODIFY_WITH_VALUE)
 				return "modifyWithValue";
 
-			throw std::exception("[EnumConverter::toString] Key is not recognized!\n");
+			Error::throwException(
+				"A Key is not recognized by the Enum Converter!\n"
+			);
 		}
 	};
 }
