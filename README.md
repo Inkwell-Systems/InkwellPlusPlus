@@ -1,116 +1,60 @@
-# InkwellPlusPlus
-A C++ API for the Inkwell project.
+![inkwellBanner](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/1af85195-624d-4294-8182-dd2553df7e85)
 
 # State of the API
-I am still working on it. Currently, it can do the following:
-- Deserialize and Serialize an Inkwell JSON
-- Utilize Facts, Events and Rules, stored in a Table, which itself is present within a Project
-- Access, read and modify entries
-- Trigger entries and dispatch callbacks
+The Inkwell API is in a functional state. It can parse, store, modify and write an Inkwell JSON.
 
 # Future plans
-- Add custom entries
-- Clean up code
+In the future, custom entries should be introduced in the Inkwell interface.
 
+# Documentation. How to utilize the API
 
+## I. Structure
 
-# How to use
+The main unit of the Inkwell API is the ***Project,*** which stores ***Tables.***
 
+The Tables contain ***Events, Facts and Rules*** respectively.
 
+The API uses ***shared_ptr's*** of these classes.
 
-# I. Structure
+![image](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/a4acc71e-c8e1-433d-92a4-5d83e8b92d75)
 
-Inkwell uses the following class structure:
+## II. Parsing / Deserializing the Inkwell file
 
-- Project
-  - Table
-    - Event
-    - Fact
-    - Rule
-      - Criterion
-      - Modification
-     
-The API uses shared pointers of these classes, which are defined as <class-name> + "Ref".
+The file can be read from any type of input stream.
 
-![image](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/7d10dd47-7d23-43fe-9f5c-8f32360272fb)
+As an example, in the image below, a file stream is opened and ***the >> (extraction) operator is utilized on the Project pointer.***
 
-# II. Deserialization
+![image](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/72e1fc6a-ddcd-44a9-9a49-98455d31245a)
 
-The Deserializer class facilitates the parsing of an Inkwell JSON file.
-A Deserializer object may be constructed with the path to the JSON as the constructor argument.
+_(Note that the file extension is not relevant in the parsing of the Project.)_
 
-![image](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/5bed300a-07f1-4d83-a500-85a48bac6444)
+_The parsing of the JSON structure itself is done utilizing the following library:
+https://github.com/nlohmann/json_
 
-To parse the Project present within a JSON, one must call the parseProject method of the Deserializer object as such:
+## III. Project, Table, Entry
 
-![image](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/d26a51aa-cb1f-46ed-9378-9c47ca6f39eb)
+***The Project object contains the Tables*** within the Inkwell file, ***as well as any extra information*** included in the file.
 
-Alternatively, this can be done in one line:
+A Table is a ***container that holds Entries.***
 
-![image](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/f2f6648c-fc50-4b2f-ab14-bd74661b41a3)
+An Entry represents a ***functional component of the API,*** which has its own value, trigger other entries or dispatch callbacks, depending on the Entry type.
 
-Once parsed, the Project is now structured internally and its fields may be accessed.
-The deserializer expects a *correct* JSON.
-
-# III. Project
-
-The Project object has the following fields:
-
-- Project
-  - name
-  - description
-  - createdAtNano
-  - tables (name-table map)
-    - id
-    - key
-    - idToKey (map)
-    - events (name-event map)
-      - id
-      - key
-      - value
-      - triggers (what rules it triggers upon event activation)
-    - facts (name-fact map)
-      - id
-      - key
-      - value
-    - rules (name-rule map)
-      - id
-      - key
-      - value
-      - triggers (a vector of entries triggered upon rule activation)
-      - criteria (to verify for the rule to activate)
-        - comparedEntry
-        - compareValue
-        - comparisonOperator
-      - modifications
-        - modifiedEntry
-        - modificationOperator
-        - modifyWithValue
-      - callbacks
-
-As the project is structured using shared pointers, the -> operator must be used for field access.
-
-Example of accessing a project's field:
-
-![image](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/119c75c3-5126-4377-aee5-e9ce351da2d1)
-
-In this example, a callback (in the form of a lambda) is being added to a Rule named "myRule". 
-The rule is contained within the "myTable" table, and the "myTable" table is part of the project object.
-
-# IV. Triggering entries
+## IV. Triggering entries
 
 This diagram shows what happens when an event is triggered:
 
 ![image](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/7977290b-04d8-48a3-9e94-d26e4347e0c2)
 
-Events and rules can be triggered. Facts do not have this functionality.
+_Events and rules can be triggered. Facts do not have this functionality._
 
-# V. Serialization
+## V. Serialization
 
-The Serializer object has the purpose of formatting the Project object and its contents into a JSON text file.
-A Serializer object may be constructed with the path to the output file as its argument.
+Serialization of the Project can be done ***via the << (insertion) operator.***
 
-![image](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/21ef3ae3-90fa-45bf-a23c-71ffcc7c043e)
+As with the extraction operator, it can be used with any type of output stream.
+
+![image](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/0a898e5f-403e-495d-9c92-6bf70f16d88d)
+
 
 
 
