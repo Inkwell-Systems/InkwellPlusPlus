@@ -10,16 +10,16 @@ namespace inkwell
 {
 	constexpr int PROJECTFLAG_NONE				= 0;
 	constexpr int PROJECTFLAG_NOCLOUD			= (1 << 0);
-	constexpr int PROJECTFLAG_NOENTRYMAP		= (1 << 1);
-	constexpr int PROJECTFLAG_NOINVITECODE		= (1 << 2);
+	constexpr int PROJECTFLAG_NOENTRYMAP			= (1 << 1);
+	constexpr int PROJECTFLAG_NOINVITECODE			= (1 << 2);
 	constexpr int PROJECTFLAG_NOOWNER			= (1 << 3);
 	constexpr int PROJECTFLAG_NOBANNER			= (1 << 4);
-	constexpr int PROJECTFLAG_NOCREATEDAT		= (1 << 5);
-	constexpr int PROJECTFLAG_NODESCRIPTION		= (1 << 6);
+	constexpr int PROJECTFLAG_NOCREATEDAT			= (1 << 5);
+	constexpr int PROJECTFLAG_NODESCRIPTION			= (1 << 6);
 	constexpr int PROJECTFLAG_NOID				= (1 << 7);
 	constexpr int PROJECTFLAG_NONAME			= (1 << 8);
 	constexpr int PROJECTFLAG_NOMEMBERS			= (1 << 9);
-	constexpr int PROJECTFLAG_NOEXTRAINFO		= (1 << 10);
+	constexpr int PROJECTFLAG_NOEXTRAINFO			= (1 << 10);
 
 	class Project
 	{
@@ -40,11 +40,11 @@ namespace inkwell
 
 			if ((flags & PROJECTFLAG_NOCLOUD) == 0)			project->extraData["cloud"] = parsedJson.at("cloud");
 			if ((flags & PROJECTFLAG_NOENTRYMAP) == 0)		project->extraData["entryMap"] = parsedJson.at("entryMap");
-			if ((flags & PROJECTFLAG_NOINVITECODE) == 0)	project->extraData["inviteCode"] = parsedJson.at("inviteCode");
+			if ((flags & PROJECTFLAG_NOINVITECODE) == 0)		project->extraData["inviteCode"] = parsedJson.at("inviteCode");
 			if ((flags & PROJECTFLAG_NOOWNER) == 0)			project->extraData["owner"] = parsedJson.at("owner");
 			if ((flags & PROJECTFLAG_NOBANNER) == 0)		project->extraData["projectBanner"] = parsedJson.at("projectBanner");
 			if ((flags & PROJECTFLAG_NOCREATEDAT) == 0)		project->extraData["projectCreatedAt"] = parsedJson.at("projectCreatedAt");
-			if ((flags & PROJECTFLAG_NODESCRIPTION) == 0)	project->extraData["projectDescription"] = parsedJson.at("projectDescription");
+			if ((flags & PROJECTFLAG_NODESCRIPTION) == 0)		project->extraData["projectDescription"] = parsedJson.at("projectDescription");
 			if ((flags & PROJECTFLAG_NOID) == 0)			project->extraData["projectId"] = parsedJson.at("projectId");
 			if ((flags & PROJECTFLAG_NONAME) == 0)			project->extraData["projectName"] = parsedJson.at("projectName");
 			if ((flags & PROJECTFLAG_NOMEMBERS) == 0)		project->extraData["members"] = parsedJson.at("members");
@@ -272,11 +272,11 @@ namespace inkwell
 
 			if ((flags & PROJECTFLAG_NOCLOUD) == 0)			tab(fileOutput), fileOutput << "\"cloud\": " << project->extraData.at("cloud") << ",\n";
 			if ((flags & PROJECTFLAG_NOENTRYMAP) == 0)		tab(fileOutput), fileOutput << "\"entryMap\": " << project->extraData.at("entryMap") << ",\n";
-			if ((flags & PROJECTFLAG_NOINVITECODE) == 0)	tab(fileOutput), fileOutput << "\"inviteCode\": " << project->extraData.at("inviteCode") << ",\n";
+			if ((flags & PROJECTFLAG_NOINVITECODE) == 0)		tab(fileOutput), fileOutput << "\"inviteCode\": " << project->extraData.at("inviteCode") << ",\n";
 			if ((flags & PROJECTFLAG_NOOWNER) == 0)			tab(fileOutput), fileOutput << "\"owner\": " << project->extraData.at("owner") << ",\n";
 			if ((flags & PROJECTFLAG_NOBANNER) == 0)		tab(fileOutput), fileOutput << "\"projectBanner\": " << project->extraData.at("projectBanner") << ",\n";
 			if ((flags & PROJECTFLAG_NOCREATEDAT) == 0)		tab(fileOutput), fileOutput << "\"createdAt\": " << project->extraData.at("projectCreatedAt") << ",\n";
-			if ((flags & PROJECTFLAG_NODESCRIPTION) == 0)	tab(fileOutput), fileOutput << "\"projectDescription\": " << project->extraData.at("projectDescription") << ",\n";
+			if ((flags & PROJECTFLAG_NODESCRIPTION) == 0)		tab(fileOutput), fileOutput << "\"projectDescription\": " << project->extraData.at("projectDescription") << ",\n";
 			if ((flags & PROJECTFLAG_NOID) == 0)			tab(fileOutput), fileOutput << "\"projectId\": " << project->extraData.at("projectId") << ",\n";
 			if ((flags & PROJECTFLAG_NONAME) == 0)			tab(fileOutput), fileOutput << "\"projectName\": " << project->extraData.at("projectName") << ",\n";
 			if ((flags & PROJECTFLAG_NOMEMBERS) == 0)		tab(fileOutput), fileOutput << "\"members\": " << project->extraData.at("members") << ",\n";
