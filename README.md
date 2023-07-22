@@ -1,4 +1,4 @@
-![inkwellBanner](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/1af85195-624d-4294-8182-dd2553df7e85)
+![Untitled](https://github.com/Inkwell-Systems/InkwellPlusPlus/assets/111175088/fcafda4d-7025-493f-99f8-7fc9a81c67c5)
 
 # ⭐ State of the API
 The Inkwell API is in a functional state. It can parse, store, modify and write an Inkwell JSON.
