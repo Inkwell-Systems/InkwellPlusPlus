@@ -26,7 +26,7 @@ std::shared_ptr<Project> myProject = std::make_shared<Project>;
 
 The file can be read from any type of input stream.
 
-As an example, in the image below, a file stream is opened and the >> (extraction) operator is utilized on the Project pointer.
+As an example, in the image below, a file stream is opened and the `>> (extraction)` operator is utilized on the Project pointer.
 
 ```cpp
 std::shared_ptr<Project> myProject = std::make_shared<Project>;
@@ -53,7 +53,7 @@ myProject->T("Sample Table");    // returns pointer to Table with Key equivalent
 myProject->T(42);                // returns pointer to Table with equivalent ID
 ```
 
-A Entry is an abstract class.
+An Entry is an abstract class.
 It has the following fields and methods:
 
 ```cpp
@@ -105,7 +105,7 @@ There are three types of Entries:
 
 ## 📝 IV. Serialization
 
-Serialization of the Project can be done ***via the << (insertion) operator.***
+Serialization of the Project can be done via the `<< (insertion)` operator.
 
 As with the extraction operator, it can be used with any type of output stream.
 
