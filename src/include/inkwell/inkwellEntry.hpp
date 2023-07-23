@@ -24,6 +24,8 @@ namespace inkwell
 		std::string key = "";
 		int guard = 0;
 
+		Entry() {};
+
 	public:
 		double value = 0;
 
@@ -61,10 +63,9 @@ namespace inkwell
 		std::shared_ptr<Entry> comparedEntry = nullptr;
 		int comparedEntryID = NULL;
 		double compareValue = 0;
-		Keys comparisonOperator = Keys::NULL_KEY;
+		EnumConverter::Keys comparisonOperator = EnumConverter::Keys::NULL_KEY;
 
-	public:
-		Criterion() 
+		Criterion()
 		{
 			if (this->initialized)
 			{
@@ -81,7 +82,7 @@ namespace inkwell
 			this->initialized = true;
 		}
 
-		Criterion(int comparedEntryID, double compareValue, Keys comparisonOperator)
+		Criterion(int comparedEntryID, double compareValue, EnumConverter::Keys comparisonOperator)
 		{
 			if (this->initialized)
 			{
@@ -101,16 +102,17 @@ namespace inkwell
 			this->initialized = true;
 		}
 
+	public:
 		bool check() const
 		{
 			switch (this->comparisonOperator)
 			{
-			case Keys::COMPARISON_OPERATOR_EQUAL: return (this->comparedEntry->value == this->compareValue);
-			case Keys::COMPARISON_OPERATOR_NOT_EQUAL: return (this->comparedEntry->value != this->compareValue);
-			case Keys::COMPARISON_OPERATOR_GREATER_THAN: return (this->comparedEntry->value > this->compareValue);
-			case Keys::COMPARISON_OPERATOR_GREATER_THAN_OR_EQUAL: return (this->comparedEntry->value >= this->compareValue);
-			case Keys::COMPARISON_OPERATOR_LESS_THAN: return (this->comparedEntry->value < this->compareValue);
-			case Keys::COMPARISON_OPERATOR_LESS_THAN_OR_EQUAL: return (this->comparedEntry->value <= this->compareValue);
+			case EnumConverter::Keys::COMPARISON_OPERATOR_EQUAL: return (this->comparedEntry->value == this->compareValue);
+			case EnumConverter::Keys::COMPARISON_OPERATOR_NOT_EQUAL: return (this->comparedEntry->value != this->compareValue);
+			case EnumConverter::Keys::COMPARISON_OPERATOR_GREATER_THAN: return (this->comparedEntry->value > this->compareValue);
+			case EnumConverter::Keys::COMPARISON_OPERATOR_GREATER_THAN_OR_EQUAL: return (this->comparedEntry->value >= this->compareValue);
+			case EnumConverter::Keys::COMPARISON_OPERATOR_LESS_THAN: return (this->comparedEntry->value < this->compareValue);
+			case EnumConverter::Keys::COMPARISON_OPERATOR_LESS_THAN_OR_EQUAL: return (this->comparedEntry->value <= this->compareValue);
 			default: Error::throwException(
 				std::format(
 					"Invalid Comparison Operator \"{}\"!\n",
@@ -137,10 +139,9 @@ namespace inkwell
 
 		std::shared_ptr<Entry> modifiedEntry = nullptr;
 		int modifiedEntryID = NULL;
-		Keys modificationOperator = Keys::NULL_KEY;
+		EnumConverter::Keys modificationOperator = EnumConverter::Keys::NULL_KEY;
 		double modifyWithValue = NULL;
 
-	public:
 		Modification()
 		{
 			if (this->initialized)
@@ -158,7 +159,7 @@ namespace inkwell
 			this->initialized = true;
 		}
 
-		Modification(int modifiedEntryID, Keys modificationOperator, double modifyWithValue)
+		Modification(int modifiedEntryID, EnumConverter::Keys modificationOperator, double modifyWithValue)
 		{
 			if (this->initialized)
 			{
@@ -178,6 +179,7 @@ namespace inkwell
 			this->initialized = true;
 		}
 
+	public:
 		bool INIT() const
 		{
 			return this->initialized;
@@ -187,8 +189,8 @@ namespace inkwell
 		{
 			switch (this->modificationOperator)
 			{
-			case Keys::MODIFICATION_OPERATOR_SET: this->modifiedEntry->value = this->modifyWithValue; break;
-			case Keys::MODIFICATION_OPERATOR_INCREMENT: this->modifiedEntry->value += this->modifyWithValue; break;
+			case EnumConverter::Keys::MODIFICATION_OPERATOR_SET: this->modifiedEntry->value = this->modifyWithValue; break;
+			case EnumConverter::Keys::MODIFICATION_OPERATOR_INCREMENT: this->modifiedEntry->value += this->modifyWithValue; break;
 			default: Error::throwException(
 				std::format(
 					"Invalid Modification Operator \"{}\"!\n",
@@ -204,7 +206,7 @@ namespace inkwell
 
 	class Fact : public Entry
 	{
-	public:
+	private:
 		Fact()
 		{
 			if (this->initialized)
@@ -241,6 +243,7 @@ namespace inkwell
 			this->initialized = true;
 		}
 
+	public:
 		bool trigger() override
 		{
 			Error::throwException("Facts cannot be triggered!\n");
@@ -258,7 +261,6 @@ namespace inkwell
 		std::vector<std::shared_ptr<Criterion>> criteria;
 		std::vector<std::shared_ptr<Modification>> modifications;
 
-	public:
 		Rule() 
 		{
 			if (this->initialized)
@@ -295,6 +297,7 @@ namespace inkwell
 			this->initialized = true;
 		}
 
+	public:
 		std::vector<std::function<void()>> callbacks;
 
 		bool trigger() override
@@ -333,7 +336,6 @@ namespace inkwell
 	private:
 		std::unordered_set<std::shared_ptr<Entry>> triggers;
 
-	public:
 		Event()
 		{
 			if (this->initialized)
@@ -370,6 +372,7 @@ namespace inkwell
 			this->initialized = true;
 		}
 
+	public:
 		bool trigger() override {
 
 			for (auto& i : this->triggers)
@@ -377,6 +380,7 @@ namespace inkwell
 				i->trigger();
 			}
 
+			++this->value;
 			return true;
 		}
 

@@ -549,7 +549,7 @@ namespace inkwell
 			{
 				Error::throwException(
 					std::format(
-						"A Table with the ID {} has already been added!\n",
+						"A Table with the ID {} already exists!\n",
 						table->id
 					)
 				);
@@ -559,7 +559,7 @@ namespace inkwell
 			{
 				Error::throwException(
 					std::format(
-						"A Table with the key \"{}\" has already been added!\n",
+						"A Table with the key \"{}\" already exists!\n",
 						table->key
 					)
 				);
@@ -567,6 +567,16 @@ namespace inkwell
 
 			tables[table->key] = table;
 			idToKey[table->id] = table->key;
+		}
+
+		void parseExc()
+		{
+			Error::throwException(
+				std::format(
+					"This Project ({}) has already been initialized!\n",
+					(this->flags & PROJECTFLAG_NOID) == 0 ? (std::string)this->extraData.at("ProjectId") : "No ID included"
+				)
+			);
 		}
 
 	public:
@@ -631,7 +641,7 @@ namespace inkwell
 			{
 				Error::throwException(
 					std::format(
-						"A Table with the key \"{}\" does not exist!\n",
+						"A Table with the Key \"{}\" does not exist!\n",
 						idToKey[id]
 					)
 				);
@@ -658,12 +668,7 @@ namespace inkwell
 		{
 			if (project->initialized)
 			{
-				Error::throwException(
-					std::format(
-						"This Project ({}) has already been initialized!\n",
-						(project->flags & PROJECTFLAG_NOID) == 0 ? (std::string)project->extraData.at("ProjectId") : "No ID included"
-					)
-				);
+				project->parseExc();
 			}
 
 			project->parseProject(project, is);
