@@ -9,8 +9,9 @@ Also, scopes will be made functional.
 
 # 📃 Documentation. How to utilize the API
 The following section will introduce the basics regarding InkwellPlusPlus.
+For full documentation of the API, it is included in the .docx file inside of the release files.
 
-## 🏗️ I. Structure
+## I. Structure
 
 The main unit of the Inkwell API is the `Project` , which stores `Tables` .
 
@@ -22,7 +23,7 @@ The API uses `shared_ptr's` of these classes.
 std::shared_ptr<Project> myProject = std::make_shared<Project>;
 ```
 
-## 📚 II. Parsing / Deserializing the Inkwell file
+## II. Parsing / Deserializing the Inkwell file
 
 The file can be read from any type of input stream.
 
@@ -41,7 +42,7 @@ _(Note that the file extension is not relevant in the parsing of the Project.)_
 _The parsing of the JSON structure itself is done utilizing the following library:
 https://github.com/nlohmann/json_
 
-## 🌐 III. Project, Table, Entry
+## III. Project, Table, Entry
 
 The Project object contains the Tables within the Inkwell file, as well as any extra information included in the file.
 
@@ -103,7 +104,7 @@ There are three types of Entries:
   myProject->R("Sample Table")->R(10);
   ```
 
-## 📝 IV. Serialization
+## IV. Serialization
 
 Serialization of the Project can be done via the `<< (insertion)` operator.
 
@@ -115,7 +116,7 @@ std::ofstream fileOutput("myOutput.inkwell");
 fileOutput << myProject;
 ```
 
-## ✍️ V. Json Structure
+## V. Json Structure
 
 The input file is structured as such:
 
