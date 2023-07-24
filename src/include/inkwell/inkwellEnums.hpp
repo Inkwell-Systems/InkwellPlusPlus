@@ -73,9 +73,9 @@ namespace inkwell
 			return "nullKey";
 		}
 
+	public:
 		EnumConverter() {};
 
-	public:
 		friend class Project;
 		friend class Table;
 		friend class Entry;
