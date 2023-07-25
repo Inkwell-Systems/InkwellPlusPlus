@@ -203,3 +203,7 @@ The input file is structured as such:
 }
 ```
 
+# Acknowledgements
+
+- External Libraries:
+  https://github.com/nlohmann/json_
